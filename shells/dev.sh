@@ -1,0 +1,50 @@
+PYTHONPATH=. python scripts/mp_wrapper.py \
+    --script scripts/run_grip.py \
+    --num_process 3 \
+    --dataset scene_graph \
+    --output_file dev.json \
+    --num_test 500 \
+    --do_eval \
+    --metrics em f1 hit llm\
+    --llm_as_judge_model qwen-32b \
+    --subprocess_args \
+    --overwrite True\
+    --task_generator_model_name qwen-7b \
+    --k_shot 10 \
+    --num_qa 20 \
+    --num_summarization 10 \
+    --task_gen_max_length 1000 \
+    --tokenize_max_length 4096 \
+    --gen_max_length 100 \
+    --model_name qwen-7b \
+    --quantization False \
+    --lora_r 8 \
+    --lora_alpha 32 \
+    --target_modules down_proj up_proj gate_proj \
+    --gather_batches True \
+    --num_train_epochs 100 \
+    --involve_qa_epochs 100 \
+    --s1_stop_loss_threshold 0.2 \
+    --s2_stop_loss_threshold 0.4 \
+    --s1_min_epoch 5 \
+    --s2_min_epoch 5 \
+    --remove_unused_columns True \
+    --report_to none \
+    --overwrite_output_dir True \
+    --per_device_train_batch_size 4 \
+    --gradient_accumulation_steps 128 \
+    --learning_rate 5e-4 \
+    --weight_decay 1e-1 \
+    --adam_beta1 0.9 \
+    --adam_beta2 0.98 \
+    --adam_epsilon 1e-8 \
+    --max_grad_norm 1.0 \
+    --log_level info \
+    --logging_strategy steps \
+    --logging_steps 1 \
+    --save_strategy no \
+    --bf16 True \
+    --tf32 False \
+    --gradient_checkpointing False \
+    --lr_scheduler_type linear
+
