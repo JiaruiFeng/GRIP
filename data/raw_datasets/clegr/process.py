@@ -1,6 +1,6 @@
 import random
 from os import path as osp
-
+import tarfile
 import torch
 
 from utils import make_dir, download_hf_file, extract_zip, save_list_json
@@ -12,7 +12,8 @@ def process_clegr(save_dir: str):
     make_dir(save_dir)
     if not osp.exists(osp.join(save_dir, "data_for_hf.tar.gz")):
         download_hf_file(HF_REPO_ID, subfolder="data", filename="data_for_hf.tar.gz", local_dir=save_dir)
-        extract_zip(osp.join(save_dir, "data_for_hf.tar.gz"), save_dir)
+        with tarfile.open(osp.join(save_dir, "data_for_hf.tar.gz"), "r:gz") as tar:
+            tar.extractall(path=save_dir)
 
     for dataset in ["clegr-facts", "clegr-reasoning", "clegr-facts-large", "clegr-reasoning-large"]:
         if "large" in dataset:
