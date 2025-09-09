@@ -9,6 +9,7 @@ DATASET_DICT = {"scene_graph": process_scene_graph,
                 "wn18rr": process_wn18rr,
                 "webqsp": process_webqsp,
                 "cwq": process_cwq,
+                "clegr": process_clegr,
                 }
 
 if __name__ == "__main__":
