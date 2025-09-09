@@ -13,7 +13,12 @@ class TaskArguments:
         metadata={"help": "The model name of the task generator."}
     )
 
-    num_qa: int = field(
+    num_context_qa: int = field(
+        default=20,
+        metadata={"help": "The number of QA pairs to generate."}
+    )
+
+    num_reason_qa: int = field(
         default=20,
         metadata={"help": "The number of QA pairs to generate."}
     )

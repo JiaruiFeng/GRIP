@@ -36,7 +36,7 @@ TUPLE_DELIMITER = "<|>"
 RECORD_DELIMITER = "##"
 
 SYSTEM_PROMPT = """
-You are a helpful assistant. Please strictly follow user's instruction and provide an accurate, complete, and concise answer to 
-the user query. If unable to answer the question, just see "I don't know".
+You are a helpful assistant. your task is to provide accurate, direct, and concise answers to user queries. If unable to 
+answer the question, respond with "I don't know". Do not guess the answer.
 """
 

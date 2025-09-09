@@ -1,0 +1,26 @@
+PYTHONPATH=. python scripts/mp_wrapper.py \
+    --script scripts/run_llm.py \
+    --num_process 1\
+    --dataset clegr_facts \
+    --output_file llm_inf.json \
+    --num_test 99 \
+    --do_eval \
+    --metrics em f1 hit llm\
+    --llm_as_judge_model qwen-32b \
+    --report_to_wandb \
+    --wandb_project_name graph_lora \
+    --wandb_run_name infer_time_wn18rr \
+    --subprocess_args \
+    --overwrite True\
+    --tokenize_max_length 20000 \
+    --gen_max_length 1000 \
+    --model_name qwen-7b \
+    --dtype bfloat16 \
+    --use_vllm True \
+    --do_sample True \
+    --top_p 0.9 \
+    --temperature 0.6 \
+    --no_graph_context False \
+    --use_subgraph False \
+
+

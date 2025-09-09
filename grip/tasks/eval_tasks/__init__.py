@@ -1,13 +1,17 @@
-from .base import BaseEvalDataset
-from .standard_eval import StandardEvalDataset
-from .grip_eval import GRIPEvalDataset
+from typing import Optional
+
 from transformers import PreTrainedTokenizer
+
+from .base import BaseEvalDataset
+from .grip_eval import GRIPEvalDataset
+from .standard_eval import StandardEvalDataset
+
 
 def gen_eval_task(
         eval_mode: str,
         input_data: dict,
-        tokenizer: PreTrainedTokenizer,
-    **kwargs,
+        tokenizer: Optional[PreTrainedTokenizer] = None,
+        **kwargs,
 ) -> BaseEvalDataset:
     questions = input_data["questions"]
     answers = input_data["answers"]

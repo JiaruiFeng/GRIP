@@ -153,8 +153,9 @@ def compute_llm_score(
         **kwargs)
     user_prompt = """
     You will be given one question, one predicted answer from an llm candidate model, and the ground truth answers. 
-    Be as best as you can to evaluate whether the answer generated from the model include one of the ground truth. If 
-    be included, response yes, otherwise no. Please DON'T output quotes when outputting your evaluation. 
+    Be as best as you can to evaluate whether the answer generated from the model match one of the ground truth. If 
+    be included, response yes, otherwise no. A match is not required to be exactly the same, but should be semantically identical.
+    Please DON'T output quotes when outputting your evaluation. 
     Here is some examples:
     --Example 1--
     Question: What is in the box?

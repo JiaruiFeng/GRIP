@@ -69,5 +69,4 @@ class StandardEvalDataset(BaseEvalDataset):
             context = self.context_format.format(context_graph=context_graph)
             user_content = context + "\n" + template
 
-        sample = self._format_chat_template(user_content)
-        return self.tokenizer(sample, return_tensors="pt")["input_ids"], question, answer
+        return user_content, question, answer

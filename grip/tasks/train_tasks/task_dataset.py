@@ -26,7 +26,7 @@ class TaskDataset(Dataset):
     def enable_qa(self, value: bool):
         self._enable_qa = value
         if value:
-            self.data_list = self.qa_samples + self.context_samples
+            self.data_list = self.qa_samples  # + self.context_samples
         else:
             self.data_list = self.context_samples
 

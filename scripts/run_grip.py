@@ -1,6 +1,6 @@
 import os
-import re
 from typing import Optional
+
 import torch
 from tqdm import tqdm, trange
 from transformers import TrainingArguments
@@ -13,9 +13,9 @@ from arguments import (
     InferenceArguments,
     parse_args
 )
-from models import get_ft_model, load_peft_model
-from grip.tasks import gen_train_task, gen_eval_task
+from grip.tasks import GripTaskGeneration, gen_eval_task
 from grip.training import train
+from models import get_ft_model, load_peft_model
 from utils import extract_tag_content, save_entry_to_list_json, load_list_json, set_random_seed, Timer
 
 
@@ -40,13 +40,13 @@ def run(
         ref_data: Optional[list[dict]] = None,
         num_resumed: int = 0,
 ):
+    _ = set_random_seed()
     # get model and tokenizer
     model, tokenizer = get_ft_model(**exp_args)
 
     graph_list = [data["graph"] for i, data in enumerate(input_data) if i >= num_resumed]
     title_list = [data["title"] for i, data in enumerate(input_data) if i >= num_resumed]
-    task_data = gen_train_task(graph_list, title_list, tokenizer=tokenizer, ref_data=ref_data, **exp_args)
-
+    task_data = GripTaskGeneration(graph_list, title_list, tokenizer=tokenizer, refer_data=ref_data, **exp_args)()
     timer = Timer()
     # start training
     for i, (input_d, task_d) in enumerate(tqdm(zip(input_data, task_data), desc=f"Rank {rank}, Sample: ")):
@@ -61,7 +61,7 @@ def run(
         )
 
         # inference
-        model = model.merge_and_unload()
+        # model = model.merge_and_unload()
         if model.device.type == "cpu":
             model = model.to(torch.device("cuda" if torch.cuda.is_available() else "cpu"))
         model.eval()
@@ -107,7 +107,6 @@ def run(
 
 
 def main():
-    _ = set_random_seed()
     base_args, training_args, exp_args = parse_args(
         (
             BaseArguments,

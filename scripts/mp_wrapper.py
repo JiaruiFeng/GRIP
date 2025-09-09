@@ -40,7 +40,7 @@ def run_command(
         args: argparse.Namespace,
         input_file: str,
         output_file: str,
-        ref_file: Optional[str] = None,):
+        ref_file: Optional[str] = None, ):
     env = os.environ.copy()
     env['CUDA_VISIBLE_DEVICES'] = str(visible_gpus[rank])
     env["PYTHONPATH"] = "."
@@ -159,6 +159,7 @@ def main(args):
         else:
             for k, v in eval_results.items():
                 print(f"{k}: {v}")
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

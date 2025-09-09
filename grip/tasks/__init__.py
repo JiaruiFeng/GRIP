@@ -1,2 +1,2 @@
-from .train_tasks import gen_train_task, TaskDataset
+from .train_tasks import GripTaskGeneration, TaskDataset
 from .eval_tasks import gen_eval_task

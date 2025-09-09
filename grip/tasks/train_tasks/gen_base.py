@@ -1,13 +1,11 @@
-import gc
 import random
 from abc import abstractmethod, ABC
+from typing import Optional
 
-import torch
 from transformers import PreTrainedTokenizer
-from vllm.distributed.parallel_state import destroy_model_parallel
 
 from constants import SYSTEM_PROMPT
-from models import get_inf_model
+from models import BaseInferenceModel
 from .train_system_prompts import TRAIN_SYSTEM_PROMPTS
 
 
@@ -19,6 +17,7 @@ class GenGraphTaskBase(ABC):
             graph_list: list,
             title_list: list[str],
             tokenizer: PreTrainedTokenizer,
+            task_generator: Optional[BaseInferenceModel] = None,
             task_generator_model_name: str = "qwen-32b",
             task_gen_max_length: int = 1000,
             **kwargs,
@@ -28,12 +27,12 @@ class GenGraphTaskBase(ABC):
         self.tokenizer = tokenizer
         self.task_generator_model_name = task_generator_model_name
         self.task_gen_max_length = task_gen_max_length
-        self.task_generator = None
+        self.task_generator = task_generator
         self.kwargs = kwargs
         super().__init__()
 
     @abstractmethod
-    def gen_task(self) -> list:
+    def gen_task(self, gen_empty_task=False) -> list:
         """
         generate train task.
         """
@@ -58,29 +57,8 @@ class GenGraphTaskBase(ABC):
         ]
         return self.tokenizer.apply_chat_template(message, tokenize=False)
 
-    def __call__(self) -> list:
-        return self.gen_task()
-
-    def load_model(self):
-        self.task_generator = get_inf_model(
-            model_name=self.task_generator_model_name,
-            use_vllm=True,
-            gen_max_length=self.task_gen_max_length,
-            tokenize_max_length=10000,
-            top_p=0.9,
-            temperature=0.6,
-        )
-
-    def unload_model(self):
-        if self.task_generator is not None:
-            # torch.distributed.destroy_process_group()
-            destroy_model_parallel()
-            # del self.task_generator.model.llm_engine.model_executor.driver_worker
-            del self.task_generator.model
-            del self.task_generator
-            self.task_generator = None
-            torch.cuda.empty_cache()
-            gc.collect()
+    def __call__(self, gen_empty_task=False) -> list:
+        return self.gen_task(gen_empty_task)
 
     def sample_post_process(self, text_list: list):
         end = self.tokenizer.eos_token + "\n"

@@ -3,10 +3,10 @@ from typing import Any
 from transformers import HfArgumentParser
 
 from .base_args import BaseArguments
-from .task_args import TaskArguments
 from .eval_args import EvalArguments
 from .inf_args import InferenceArguments
 from .model_args import ModelArguments
+from .task_args import TaskArguments
 from .train_args import CustomTrainingArguments
 
 

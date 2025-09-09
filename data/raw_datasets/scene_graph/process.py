@@ -51,7 +51,7 @@ def process_scene_graph(save_dir: str):
 
     dataset = json.load(open(osp.join(save_dir, "train_sceneGraphs.json"), "r"))
     question_df = pd.read_csv(osp.join(save_dir, "questions.csv"))
-    graph_split = torch.load(osp.join(save_dir, "scene_graph_split.pt"))
+    graph_split = torch.load(osp.join(save_dir, "scene_graph_split.pt"), weights_only=False)
     image_ids = question_df.image_id.unique()
     train_data_list = []
     val_data_list = []

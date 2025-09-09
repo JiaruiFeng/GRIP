@@ -1,5 +1,7 @@
-from data import *
 import os
+
+from data import *
+
 OUTPUT_DIR = "outputs/data/"
 
 DATASET_DICT = {"scene_graph": process_scene_graph,
