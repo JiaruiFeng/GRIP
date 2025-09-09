@@ -182,3 +182,5 @@ cython_debug/
 
 /jobs
 .DS_Store
+outputs/
+wandb/

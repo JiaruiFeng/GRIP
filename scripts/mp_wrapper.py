@@ -104,7 +104,12 @@ def main(args):
     os.makedirs(MP_OUTPUT_DIR, exist_ok=True)
 
     input_file = osp.join(DATA_DIR, args.dataset, "processed_test.json")
-    ref_file = osp.join(DATA_DIR, args.dataset, "processed_train.json")
+    if osp.exists(osp.join(DATA_DIR, args.dataset, "processed_train.json")):
+        ref_file = osp.join(DATA_DIR, args.dataset, "processed_train.json")
+    elif osp.exists(osp.join(DATA_DIR, args.dataset, "processed_val.json")):
+        ref_file = osp.join(DATA_DIR, args.dataset, "processed_val.json")
+    else:
+        ref_file = None
 
     if "run_grip" in args.script:
         output_base_dir = GRIP_INF_OUTPUT_DIR

@@ -19,9 +19,9 @@ def process_clegr(save_dir: str):
         if "large" in dataset:
             dataset_name = "-".join(dataset.split("-")[:-1])
             data_tuple = torch.load(osp.join(save_dir, "datasets_for_hf", "clegr-large",
-                                             dataset_name, "processed", "data_list.pt"))
+                                             dataset_name, "processed", "data_list.pt"), weights_only=False)
         else:
-            data_tuple = torch.load(osp.join(save_dir, "datasets_for_hf", dataset, "processed", "data_list.pt"))
+            data_tuple = torch.load(osp.join(save_dir, "datasets_for_hf", dataset, "processed", "data_list.pt"), weights_only=False)
         data, slices, data_cls = data_tuple
         data = data_cls.from_dict(data)
 

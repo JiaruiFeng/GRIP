@@ -15,7 +15,6 @@ DATASET_DICT = {"scene_graph": process_scene_graph,
 if __name__ == "__main__":
     for dataset, process_func in DATASET_DICT.items():
         output_path = OUTPUT_DIR + dataset
-        if (not os.path.exists(output_path + "/processed_test.json") or
-                not os.path.exists(output_path + "/processed_train.json")):
+        if (not os.path.exists(output_path + "/processed_test.json")):
             print(f"Processing {dataset} dataset...")
             process_func(output_path)

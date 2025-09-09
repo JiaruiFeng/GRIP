@@ -1,15 +1,15 @@
 PYTHONPATH=. python scripts/mp_wrapper.py \
     --script scripts/run_grip.py \
     --num_process 8 \
-    --dataset scene_graph \
-    --output_file scene_graph_qwen.json \
-    --num_test 500 \
+    --dataset clegr_facts \
+    --output_file clegr_facts_qwen.json \
+    --num_test 400 \
     --do_eval \
     --metrics em f1 hit llm\
     --llm_as_judge_model qwen-32b \
     --report_to_wandb \
     --wandb_project_name grip \
-    --wandb_run_name scene_graph_qwen \
+    --wandb_run_name clegr_facts_qwen \
     --subprocess_args \
     --overwrite False \
     --task_generator_model_name qwen-7b \
