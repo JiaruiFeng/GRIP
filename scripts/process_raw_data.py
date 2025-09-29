@@ -7,8 +7,8 @@ OUTPUT_DIR = "outputs/data/"
 DATASET_DICT = {"scene_graph": process_scene_graph,
                 "fb15k237": process_fb15k237,
                 "wn18rr": process_wn18rr,
-                "webqsp": process_webqsp,
-                "cwq": process_cwq,
+                # "webqsp": process_webqsp,
+                # "cwq": process_cwq,
                 "clegr": process_clegr,
                 }
 
