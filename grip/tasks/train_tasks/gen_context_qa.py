@@ -23,7 +23,7 @@ class GenContextQATask(GenGraphTaskBase):
      and answer to ask about the masked part.  Given one sentence, there are multiple way to generate the QA pair. For example, given sentence 
      "A green apple is on the table at position (5, 10)",
 
-     Q1: What is the color of the apple on the table at position (5, 10)
+     Q1: What is the color of the apple on the table at position (5, 10)?
      A1: green.
 
      Q2: Where is the green apple at position (5, 10)?
@@ -35,7 +35,7 @@ class GenContextQATask(GenGraphTaskBase):
      Q4L which entity is green and on the table at position (5, 10)?
      A4: apple.
 
-    You are encourage to mask the senmantic attribute or entity itself over numeric attribute. 
+    You are encourage to mask the semantic attribute or entity itself over numeric attribute. 
 
     Here is the sentence:
     {node}
@@ -112,20 +112,14 @@ class GenContextQATask(GenGraphTaskBase):
                     question = "what is the relation between {src} and {tgt}?"
                     question = question.format(src=edge[0], tgt=edge[2])
                     rephrase_tasks.append(self.rephrase_user_prompt.format(question=question, answer=edge[1]))
-                    question = self.template.format(title=title, question=question)
-                    answer = self.answer_format.format(answer=edge[1])
                 elif question_type == "src":
                     question = "which entity has the relation {rel} to {tgt}?"
                     question = question.format(rel=edge[1], tgt=edge[2])
                     rephrase_tasks.append(self.rephrase_user_prompt.format(question=question, answer=edge[0]))
-                    question = self.template.format(title=title, question=question)
-                    answer = self.answer_format.format(answer=edge[0])
                 else:
                     question = "Which entity has the relation {rel} from {src}?"
                     question = question.format(src=edge[0], rel=edge[1])
                     rephrase_tasks.append(self.rephrase_user_prompt.format(question=question, answer=edge[2]))
-                    question = self.template.format(title=title, question=question)
-                    answer = self.answer_format.format(answer=edge[2])
                 graph_index.append(index)
 
         qa_tasks = [[] for _ in range(len(self.graph_list))]

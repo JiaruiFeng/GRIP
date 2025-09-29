@@ -16,7 +16,7 @@ class GenSummarizationTask(GenGraphTaskBase):
     - rewrite the original context in a completely different way, tone, writing style, and logic to summarize the original context.
     - Some rewriting techniques can be used, including reordering, exchanging active and passive sentences, or synonym replacement.
     - If only one text snippet, simply do the summarization and rephrase.
-    - If multiple text are provided, focus on the relations between different text sentences, like multi-entity connections (e.g., triangle relations).
+    - If multiple text snippets are provided, focus on the relations between different text sentences, like multi-entity connections (e.g., triangle relations).
     The text snippets are provided below:
     {context}
     
@@ -31,7 +31,7 @@ class GenSummarizationTask(GenGraphTaskBase):
     - Retains every correct fact from the provided summary.
     - Adds any facts the provided summary missed and corrects any inaccuracies, using the text snippets as the source of truth.
     - Be accurate and complete, preserving ALL factual details like color or properties; and numeric details like quantity or coordinate.
-    - Differs maximally in wording and structure from the original (e.g., reordering, active↔passive, synonym choice).
+    - Differs maximally in wording and structure from the provided summary (e.g., reordering, active↔passive, synonym choice).
     - If the summary is not provided, directly generate a summary from the given text snippets.
     The text snippets are provided below:
     {context}
@@ -117,8 +117,8 @@ class GenSummarizationTask(GenGraphTaskBase):
                     np.arange(len(edge_list)),
                     root_node,
                     num_nodes,
-                    hop=1,
-                    max_nodes_per_hop=5,
+                    hop=2,
+                    max_nodes_per_hop=3,
                 )
 
                 subgraph_edges = [edge_list[e] for e in subgraph_edges.data]

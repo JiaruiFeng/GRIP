@@ -126,17 +126,18 @@ def sample_fixed_hop_size_neighbor(
 def compute_node_edge_weight(edge_index: np.ndarray, num_nodes=None) -> tuple[np.ndarray, np.ndarray]:
     src_nodes = edge_index[:, 0]
     dst_nodes = edge_index[:, 1]
-    all_nodes = np.concatenate([src_nodes, dst_nodes])
     if num_nodes is None:
-        num_nodes = all_nodes.max() + 1
-    # Compute node degrees
-    degrees = np.bincount(all_nodes, minlength=num_nodes)
-    degrees[degrees == 0] = 1.0
-    node_weights = 1.0 / degrees
-    # Compute edge weights
-    src_degrees = degrees[src_nodes]
-    dst_degrees = degrees[dst_nodes]
-    edge_weights = 1.0 / np.sqrt(src_degrees * dst_degrees)
+        num_nodes = max(src_nodes.max(), dst_nodes.max()) + 1
+
+    out_degrees = np.bincount(src_nodes, minlength=num_nodes)
+    out_degrees[out_degrees == 0] = 1.0  # avoid divide by zero
+
+    in_degrees = np.bincount(dst_nodes, minlength=num_nodes)
+    in_degrees[in_degrees == 0] = 1.0
+
+    node_weights = 1.0 / (in_degrees + out_degrees)
+    edge_weights = 1.0 / np.sqrt(out_degrees[src_nodes] * in_degrees[dst_nodes])
+
     return node_weights, edge_weights
 
 

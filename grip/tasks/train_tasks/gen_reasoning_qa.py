@@ -32,27 +32,27 @@ class GenReasoningQATask(GenGraphTaskBase):
     \nEvidence: [evidence] \nQuestion: [question] \nAnswer: [answer]
     Please DON'T output quotes and separate each questions by {tuple_delimiter}, strictly follow the format. 
     """
-
-    gen_local_user_prompt = """
-    You are given several text snippets from a graph as context. Generate two diverse, reasoning-focused questions and 
-    answers based on the context. 
-     - Each question should focus on retrieving a single fact using partial information (e.g., infer the entity 
-       from an attribute like color, appearance, or infer an attribute from the entity).
-     - Avoid trivial lookups (e.g., complete an edge) and avoid quantity questions (“how many”).
-     - Use natural phrasing; do not explicitly states “graph”/“node(s)” in question/answer.
-     - Keep answers concise (single words or short phrases). 
-     - The two new questions must target different facts and differ from each other.
-     - Answers must be correct, concise, complete (if multiple elements can be answer, include all of them) and supported by the subgraph.
-     - For each question and answer, provide one brief evidence sentence from the context.
-
-    text snippets are provided below:
-    {context}
-
-    Please first provide the evidence and then provide question and answer in the following format: 
-    \nEvidence: [evidence] \nQuestion: [question] \nAnswer: [answer] {tuple_delimiter}
-    \nEvidence: [evidence] \nQuestion: [question] \nAnswer: [answer]
-    Please DON'T output quotes and separate each questions by {tuple_delimiter}, strictly follow the format. 
-    """
+    #
+    # gen_local_user_prompt = """
+    # You are given several text snippets from a graph as context. Generate two diverse, reasoning-focused questions and
+    # answers based on the context.
+    #  - Each question should focus on retrieving a single fact using partial information (e.g., infer the entity
+    #    from an attribute like color, appearance, or infer an attribute from the entity).
+    #  - Avoid trivial lookups (e.g., complete an edge) and avoid quantity questions (“how many”).
+    #  - Use natural phrasing; do not explicitly states “graph”/“node(s)” in question/answer.
+    #  - Keep answers concise (single words or short phrases).
+    #  - The two new questions must target different facts and differ from each other.
+    #  - Answers must be correct, concise, complete (if multiple elements can be answer, include all of them) and supported by the subgraph.
+    #  - For each question and answer, provide one brief evidence sentence from the context.
+    #
+    # text snippets are provided below:
+    # {context}
+    #
+    # Please first provide the evidence and then provide question and answer in the following format:
+    # \nEvidence: [evidence] \nQuestion: [question] \nAnswer: [answer] {tuple_delimiter}
+    # \nEvidence: [evidence] \nQuestion: [question] \nAnswer: [answer]
+    # Please DON'T output quotes and separate each questions by {tuple_delimiter}, strictly follow the format.
+    # """
 
     gen_global_user_prompt = """
     You are given several text snippets from a graph as context. Generate two diverse, reasoning-focused questions and 
@@ -96,8 +96,8 @@ class GenReasoningQATask(GenGraphTaskBase):
 
 
     gen_kshot_user_prompt = """
-    You are given several text snippets from a graph as context, along with some sampled qustions from another graph. Create two new 
-    questions to test understanding on the provided text snippets.
+    You are given several text snippets from a graph as context, along with some sampled questions from ANOTHER graph. Create two new 
+    questions to test understanding of model on the provided text snippets.
     1. Select two sample questions that best fit the provided text snippets. Two sample questions must differ in at least one dimension:
     Interrogative (who/what/how/is-are/when/where), Format (descriptive/comparative/reasoning/yes-no), 
     Focus (attributes/relationships/numerical details/multi-entity connections)
@@ -108,10 +108,7 @@ class GenReasoningQATask(GenGraphTaskBase):
     - Use natural phrasing; do not explicitly states “graph”/“node(s)” in question/answer.
     - The two new questions must target different facts and differ from each other.
     - Answers must be correct, concise, complete (if multiple elements can be answer, include all of them).
-    - The sample questions is from another graph, DO NOT leverge any semantic information from it. The new question and answer should grounded by provided context.
-        
-    Generate two diverse, reasoning-focused questions and 
-    answers based on the context. 
+    - DO NOT leverage any semantic information from sample questions. The new question and answer should grounded by provided text snippets.
     
     text snippets are provided below:
     {context}
@@ -132,7 +129,7 @@ class GenReasoningQATask(GenGraphTaskBase):
     1. For each question and answer pair, determine if the question and answer is reasonable and fully grounded by the provided context (answer cannot be I don't know). 
     2. If the question/answer is wrong or not related to the provided context, generate a CORRECTED question/answer based on the context.
     3. If the answer and question are correct but can be further improved, provide an IMPROVED answer that is more concise and precise.
-    4. If the answer and question already correct and optimal, simply restate the original answer as the IMPROVED answer.
+    4. If the answer and question already correct and optimal, simply restate the original question and answer.
         
     The context and QA pairs are provided below:
     --Context--
@@ -140,7 +137,7 @@ class GenReasoningQATask(GenGraphTaskBase):
     --QA pair--
     Question : {question}
     Answer : {answer}
-    Please first provide whether is answer is changed and then provide the final question and answer in the following format: 
+    Please first provide whether is QA pair is changed and then provide the final question and answer in the following format: 
     \nChanged: [yes or no] \nQuestion: [question] \nAnswer: [answer] 
     Please DON'T output quotes and strictly follow the format. 
     
@@ -229,13 +226,13 @@ class GenReasoningQATask(GenGraphTaskBase):
                     context += entry_format.format(src=entry[0], rel=entry[1], tgt=entry[2])
 
 
-                gen_prompt = [self.gen_local_user_prompt,
+                gen_prompt = [# self.gen_local_user_prompt,
                               self.gen_global_user_prompt,
                               self.gen_multihop_user_prompt,
                               self.gen_binary_user_prompt,
                               self.gen_kshot_user_prompt][question_type]
 
-                if question_type == 4:
+                if question_type == 3:
                     k_shot_examples = random.sample(self.train_question_list, k=8)
                     k_shot_examples = "; ".join(k_shot_examples)
                     qa_task = gen_prompt.format(context=context, tuple_delimiter=TUPLE_DELIMITER,
@@ -248,7 +245,7 @@ class GenReasoningQATask(GenGraphTaskBase):
                 qa_graph_index.append(index)
                 qa_title_list.append(title)
                 question_type += 1
-                question_type = question_type % 5
+                question_type = question_type % 4
         qa_s1_result = self.task_generator.inference(qa_s1_tasks, self.gen_system_prompt)
         qa_s2_tasks = []
         qa_graph_s2_index = []
