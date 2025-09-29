@@ -69,3 +69,7 @@ class CustomTrainingArguments:
         default=1,
         metadata={'help': "The minimum training epoch for stage 2."}
     )
+    continue_training: bool = field(
+        default=False,
+        metadata={'help': "If ture, do continue training upon previou graphs"}
+    )

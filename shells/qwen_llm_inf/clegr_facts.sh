@@ -1,20 +1,20 @@
 PYTHONPATH=. python scripts/mp_wrapper.py \
     --script scripts/run_llm.py \
     --num_process 8 \
-    --dataset scene_graph \
-    --num_test 500 \
-    --output_file scene_graph_llama_baseline.json \
+    --dataset clegr_facts \
+    --num_test 400 \
+    --output_file clegr_facts_qwen_baseline_new.json \
     --do_eval \
     --metrics em f1 hit llm\
     --llm_as_judge_model qwen-32b \
     --report_to_wandb \
     --wandb_project_name grip \
-    --wandb_run_name scene_graph_llama_baseline \
+    --wandb_run_name clegr_facts_qwen_baseline_new \
     --subprocess_args \
     --overwrite True\
     --tokenize_max_length 30000 \
     --gen_max_length 1000 \
-    --model_name llama3-8b \
+    --model_name qwen-7b \
     --dtype bfloat16 \
     --use_vllm True \
     --do_sample True \

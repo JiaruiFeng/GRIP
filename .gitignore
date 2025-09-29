@@ -184,3 +184,5 @@ cython_debug/
 .DS_Store
 outputs/
 wandb/
+slurm_logs/
+*.slurm

@@ -1,15 +1,15 @@
 PYTHONPATH=. python scripts/mp_wrapper.py \
     --script scripts/run_llm.py \
     --num_process 8 \
-    --dataset scene_graph \
-    --num_test 500 \
-    --output_file scene_graph_llama_baseline.json \
+    --dataset clegr_reasoning \
+    --num_test 400 \
+    --output_file clegr_reasoning_llama_baseline_new.json \
     --do_eval \
     --metrics em f1 hit llm\
     --llm_as_judge_model qwen-32b \
     --report_to_wandb \
     --wandb_project_name grip \
-    --wandb_run_name scene_graph_llama_baseline \
+    --wandb_run_name clegr_reasoning_llama_baseline_new \
     --subprocess_args \
     --overwrite True\
     --tokenize_max_length 30000 \

@@ -49,7 +49,10 @@ def run(
     task_data = GripTaskGeneration(graph_list, title_list, tokenizer=tokenizer, refer_data=ref_data, **exp_args)()
     timer = Timer()
     # start training
-    for i, (input_d, task_d) in enumerate(tqdm(zip(input_data, task_data), desc=f"Rank {rank}, Sample: ")):
+    for i in tqdm(range(len(input_data)), desc=f"Rank {rank}, Sample: "):
+        if i < num_resumed:
+            continue
+        input_d, task_d = input_data[i], task_data[i - num_resumed]
         model = load_peft_model(model, **exp_args)
         model, tokenizer = train(
             model=model,
@@ -61,7 +64,8 @@ def run(
         )
 
         # inference
-        # model = model.merge_and_unload()
+        if exp_args["continue_training"]:
+            model = model.merge_and_unload()
         if model.device.type == "cpu":
             model = model.to(torch.device("cuda" if torch.cuda.is_available() else "cpu"))
         model.eval()
@@ -72,6 +76,7 @@ def run(
             **exp_args,
         )
         output_results = []
+        output_nosample_results = []
         timer.start()
         for j in trange(0, len(eval_dataset), 1, desc=f"Inference.", disable=False, ):
             input_ids, Q, A = eval_dataset[j]
@@ -90,13 +95,29 @@ def run(
                 top_p=exp_args["top_p"],
                 temperature=exp_args["temperature"],
             )
+
+            output_no_sample = model.generate(
+                input_ids=input_ids,
+                attention_mask=attention_mask,
+                pad_token_id=tokenizer.pad_token_id,
+                eos_token_id=tokenizer.eos_token_id,
+                max_new_tokens=exp_args["gen_max_length"],
+                do_sample=False
+            )
+
+
             response = tokenizer.decode(output[0][input_ids.shape[-1]:], skip_special_tokens=True)
+            response_no_sample = tokenizer.decode(output_no_sample[0][input_ids.shape[-1]:], skip_special_tokens=True)
             evidence, answer = extract_all_evidence_and_answers(response, False)
+            evidence, answer_no_sample = extract_all_evidence_and_answers(response_no_sample, False)
+
             output_result = {
                 "id": input_d["id"],
                 "question": Q,
                 "raw_response": response.strip(),
                 "response": answer.strip(),
+                "raw_response_no_sample": response_no_sample.strip(),
+                "response_no_sample": answer_no_sample.strip(),
                 "evidence": evidence.strip(),
                 "target": A}
             output_results.append(output_result)

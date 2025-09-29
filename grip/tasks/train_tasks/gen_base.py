@@ -10,7 +10,7 @@ from .train_system_prompts import TRAIN_SYSTEM_PROMPTS
 
 
 class GenGraphTaskBase(ABC):
-    task_system_prompts = TRAIN_SYSTEM_PROMPTS + [SYSTEM_PROMPT]
+    task_system_prompts = TRAIN_SYSTEM_PROMPTS
 
     def __init__(
             self,
@@ -59,6 +59,7 @@ class GenGraphTaskBase(ABC):
 
     def __call__(self, gen_empty_task=False) -> list:
         return self.gen_task(gen_empty_task)
+
 
     def sample_post_process(self, text_list: list):
         end = self.tokenizer.eos_token + "\n"

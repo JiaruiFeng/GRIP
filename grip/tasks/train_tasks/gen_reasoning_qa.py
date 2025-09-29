@@ -5,7 +5,7 @@ import numpy as np
 from transformers import PreTrainedTokenizer
 
 from constants import SYSTEM_PROMPT, ANSWER_TAG, TUPLE_DELIMITER
-from grip.tasks.utils import sample_fixed_hop_size_neighbor, clean_graph, shuffle_graph
+from grip.tasks.utils import sample_fixed_hop_size_neighbor, clean_graph, shuffle_graph, compute_node_edge_weight, weighted_sampling
 from models import BaseInferenceModel
 from .gen_base import GenGraphTaskBase
 
@@ -14,98 +14,128 @@ class GenReasoningQATask(GenGraphTaskBase):
     gen_system_prompt = SYSTEM_PROMPT
 
     gen_multihop_user_prompt = """
-    You are given a subgraph of real-world facts and sample questions from a similar graph. Create two new questions to 
-    test understanding of the subgraph.
-    1. Select two sample questions that best match the subgraph. They must differ in at least one dimension:
-    Interrogative (who/what/how/is–are/when/where), Format (descriptive/comparative/reasoning/yes–no), Focus 
-    (attributes/relationships/numerical details/multi-entity connections).
-    
-    2. For each selected sample, write a new question with the same interrogative, format, and focus, but the content 
-    of question and answer is fully grounded in the provided subgraph. Specifically:
-     - The new questions should require multi-hop/indirect reasoning and use ≥2 distinct facts from the subgraph.
+    You are given several text snippets from a graph as context. Generate two diverse, reasoning-focused questions and 
+    answers based on the context. 
+     - The new questions should require multi-hop/indirect reasoning and use ≥2 distinct facts from the text snippets.
      - Avoid trivial lookups (e.g., complete an edge) and avoid quantity questions (“how many”).
-     - Use natural phrasing; no “graph”/“node(s)”.
+     - Use natural phrasing; do not explicitly states “graph”/“node(s)” in question/answer.
+     - Keep answers concise (single words or short phrases). 
      - The two new questions must target different facts and differ from each other.
-     - Answers must be correct, concise, complete (if multiple elements can be answer, include all of them) and supported by the subgraph.
+     - Answers must be correct, concise, complete (if multiple elements can be answer, include all of them) and supported by the text snippets.
+     - For each question and answer, provide one brief evidence sentence from the context.
      
-    The subgraph and sample questions are provided below:
-    --Subgraph--
+    text snippets are provided below:
     {context}
-    --Sample Questions--
-    {sample_questions}
 
-    Please first provide the referred sample question and then provide question and answer in the following format: 
-    \nReferred question: [referred question] \nQuestion: [question] \nAnswer: [answer] {tuple_delimiter}
-    \nReferred question: [referred question] \nQuestion: [question] \nAnswer: [answer]
+    Please first provide the evidence and then provide question and answer in the following format: 
+    \nEvidence: [evidence] \nQuestion: [question] \nAnswer: [answer] {tuple_delimiter}
+    \nEvidence: [evidence] \nQuestion: [question] \nAnswer: [answer]
     Please DON'T output quotes and separate each questions by {tuple_delimiter}, strictly follow the format. 
     """
 
     gen_local_user_prompt = """
-    You are given a subgraph of real-world facts and sample questions from a similar graph. Create two new questions to 
-    test understanding of the subgraph.
-    1. Select two sample questions that best match the subgraph. They must differ in at least one dimension:
-    Interrogative (who/what/how/is–are/when/where), Format (descriptive/comparative/reasoning/yes–no), Focus 
-    (attributes/relationships/numerical details/multi-entity connections).
-    
-    2. For each selected sample, write a new question with the same interrogative, format, and focus, but the content 
-    of question and answer is fully grounded in the provided subgraph. Specifically:
-     - The new questions should focus on retrieving a single fact using partial information (e.g., infer the entity 
-     from an attribute like color, appearance, or infer an attribute from the entity).
+    You are given several text snippets from a graph as context. Generate two diverse, reasoning-focused questions and 
+    answers based on the context. 
+     - Each question should focus on retrieving a single fact using partial information (e.g., infer the entity 
+       from an attribute like color, appearance, or infer an attribute from the entity).
      - Avoid trivial lookups (e.g., complete an edge) and avoid quantity questions (“how many”).
-     - Use natural phrasing; no “graph”/“node(s)”.
+     - Use natural phrasing; do not explicitly states “graph”/“node(s)” in question/answer.
+     - Keep answers concise (single words or short phrases). 
      - The two new questions must target different facts and differ from each other.
      - Answers must be correct, concise, complete (if multiple elements can be answer, include all of them) and supported by the subgraph.
+     - For each question and answer, provide one brief evidence sentence from the context.
 
-    The subgraph and sample questions are provided below:
-    --Subgraph--
+    text snippets are provided below:
     {context}
-    --Sample Questions--
-    {sample_questions}
 
-    Please first provide the referred sample question and then provide question and answer in the following format: 
-    \nReferred question: [referred question] \nQuestion: [question] \nAnswer: [answer] {tuple_delimiter}
-    \nReferred question: [referred question] \nQuestion: [question] \nAnswer: [answer]
+    Please first provide the evidence and then provide question and answer in the following format: 
+    \nEvidence: [evidence] \nQuestion: [question] \nAnswer: [answer] {tuple_delimiter}
+    \nEvidence: [evidence] \nQuestion: [question] \nAnswer: [answer]
     Please DON'T output quotes and separate each questions by {tuple_delimiter}, strictly follow the format. 
     """
 
     gen_global_user_prompt = """
-    You are given a subgraph of real-world facts and sample questions from a similar graph. Create two new questions to 
-    test understanding of the subgraph.
-    1. Select two sample questions that best match the subgraph. They must differ in at least one dimension:
-    Interrogative (who/what/how/is–are/when/where), Format (descriptive/comparative/reasoning/yes–no), Focus 
-    (attributes/relationships/numerical details/multi-entity connections).
+    You are given several text snippets from a graph as context. Generate two diverse, reasoning-focused questions and 
+    answers based on the context. 
 
-    2. For each selected sample, write a new question with the same type and style, but the answer is fully grounded in 
-    the subgraph. Specifically:
-     - The new questions should focus on reasoning over the full subgraph and use >2 distinct facts from the subgraph.
-     - Avoid trivial lookups (e.g., complete an edge) and avoid quantity questions (“how many”).
-     - The answer must include >= 2 element and separate them with comma or "and".
-     - Use natural phrasing; no “graph”/“node(s)”.
-     - The two new questions must target different facts and differ from each other.
-     - Answers must be correct, concise, complete (if multiple elements can be answer, include all of them) and supported by the subgraph.
+    - The new questions should focus on reasoning over the full subgraph and use >2 distinct facts from the subgraph.
+    - Avoid trivial lookups (e.g., complete an edge) and avoid quantity questions (“how many”).
+    - The answer must include >= 2 element and separate them with comma or "and".
+    - Use natural phrasing; do not explicitly states “graph”/“node(s)” in question/answer.
+    - Keep answers concise (single words or short phrases). 
+    - The two new questions must target different facts and differ from each other.
+    - Answers must be correct, concise, complete (if multiple elements can be answer, include all of them) and supported by the subgraph.
 
-    The subgraph and sample questions are provided below:
-    --Subgraph--
+    text snippets are provided below:
     {context}
-    --Sample Questions--
+
+    Please first provide the evidence and then provide question and answer in the following format: 
+    \nEvidence: [evidence] \nQuestion: [question] \nAnswer: [answer] {tuple_delimiter}
+    \nEvidence: [evidence] \nQuestion: [question] \nAnswer: [answer]
+    Please DON'T output quotes and separate each questions by {tuple_delimiter}, strictly follow the format. 
+    """
+
+    gen_binary_user_prompt = """
+    You are given several text snippets from a graph as context. Generate two diverse, reasoning-focused questions and 
+    answers based on the context. 
+
+    - One question should be answered yes and another should be answered no.
+    - The question can be ask in the following manner: is there, are there, does, can, has is it, et al. 
+    - Use natural phrasing; do not explicitly states “graph”/“node(s)” in question/answer.
+    - The two new questions must target different facts and differ from each other.
+    - Answers must be correct, concise, complete (if multiple elements can be answer, include all of them) and supported by the subgraph.
+
+    text snippets are provided below:
+    {context}
+
+    Please first provide the evidence and then provide question and answer in the following format: 
+    \nEvidence: [evidence] \nQuestion: [question] \nAnswer: [answer] {tuple_delimiter}
+    \nEvidence: [evidence] \nQuestion: [question] \nAnswer: [answer]
+    Please DON'T output quotes and separate each questions by {tuple_delimiter}, strictly follow the format. 
+    """
+
+
+    gen_kshot_user_prompt = """
+    You are given several text snippets from a graph as context, along with some sampled qustions from another graph. Create two new 
+    questions to test understanding on the provided text snippets.
+    1. Select two sample questions that best fit the provided text snippets. Two sample questions must differ in at least one dimension:
+    Interrogative (who/what/how/is-are/when/where), Format (descriptive/comparative/reasoning/yes-no), 
+    Focus (attributes/relationships/numerical details/multi-entity connections)
+
+    2. For each selected sample question, write a new question with the same type and style, but the answer is fully grounded in the text snippets. Specifcially,
+    - The new questions should focus on reasoning over the provided text snippets.
+    - Avoid trivial lookups (e.g., complete an edge) and avoid quantity questions (“how many”).
+    - Use natural phrasing; do not explicitly states “graph”/“node(s)” in question/answer.
+    - The two new questions must target different facts and differ from each other.
+    - Answers must be correct, concise, complete (if multiple elements can be answer, include all of them).
+    - The sample questions is from another graph, DO NOT leverge any semantic information from it. The new question and answer should grounded by provided context.
+        
+    Generate two diverse, reasoning-focused questions and 
+    answers based on the context. 
+    
+    text snippets are provided below:
+    {context}
+
+    sampled questions are provided below:
     {sample_questions}
 
     Please first provide the referred sample question and then provide question and answer in the following format: 
     \nReferred question: [referred question] \nQuestion: [question] \nAnswer: [answer] {tuple_delimiter}
     \nReferred question: [referred question] \nQuestion: [question] \nAnswer: [answer]
     Please DON'T output quotes and separate each questions by {tuple_delimiter}, strictly follow the format. 
+
     """
 
     gen_s2_user_prompt = """
-    You are given a subgraph representing real-world facts and an QA pair generated from it. Your task 
-    is to evaluate the correctness of question and answer pair based on the subgraph. Here is the instruction:
-    1. For each question and answer pair, determine if the question and answer is reasonable and fully relate to the subgraph. 
-    2. If the question/answer is wrong, provide a CORRECTED question/answer based on the subgraph.
-    3. If the answer or question is correct but can be further improved, provide an IMPROVED answer that is more concise and precise.
-    4. If the answer is already correct and optimal, simply restate the original answer as the IMPROVED answer.
+    You are given several text snippets representing real-world facts as context and an QA pair generated from it. Your task 
+    is to evaluate the correctness of question and answer pair based on the text snippets. Here is the instruction:
+    1. For each question and answer pair, determine if the question and answer is reasonable and fully grounded by the provided context (answer cannot be I don't know). 
+    2. If the question/answer is wrong or not related to the provided context, generate a CORRECTED question/answer based on the context.
+    3. If the answer and question are correct but can be further improved, provide an IMPROVED answer that is more concise and precise.
+    4. If the answer and question already correct and optimal, simply restate the original answer as the IMPROVED answer.
         
-    The subgraph and QA pairs are provided below:
-    --Subgraph--
+    The context and QA pairs are provided below:
+    --Context--
     {context}
     --QA pair--
     Question : {question}
@@ -185,42 +215,44 @@ class GenReasoningQATask(GenGraphTaskBase):
             node_list, edge_list, edge_index = shuffle_graph(node_list, edge_list, edge_index)
             num_nodes = len(node_list)
 
+            node_weights, edge_weights = compute_node_edge_weight(edge_index, num_nodes)
+
             question_type = 0
             for _ in range(self.num_qa):
-                root_node = int(np.random.choice(np.arange(len(node_list))))
-                subgraph_nodes, subgraph_edges = sample_fixed_hop_size_neighbor(
-                    edge_index.T,
-                    np.arange(len(edge_list)),
-                    root_node,
-                    num_nodes,
-                    hop=3,
-                    max_nodes_per_hop=3,
-                )
-                subgraph_edges = [edge_list[e] for e in subgraph_edges.data]
 
-                context = "The root node is {root}. The subgraph including edges: ".format(root=node_list[root_node])
-                entry_format = "the source node {src} is {rel} the target node {tgt}; "
+                sample_edge_index = weighted_sampling(list(range(len(edge_list))), edge_weights, 6)
+                subgraph_edges = [edge_list[e] for e in sample_edge_index]
+
+                context = ""
+                entry_format = "the {src} is {rel} the {tgt}; "
                 for entry in subgraph_edges:
                     context += entry_format.format(src=entry[0], rel=entry[1], tgt=entry[2])
 
-                k_shot_examples = random.sample(self.train_question_list, k=8)
-                k_shot_examples = "; ".join(k_shot_examples)
+
                 gen_prompt = [self.gen_local_user_prompt,
                               self.gen_global_user_prompt,
-                              self.gen_multihop_user_prompt][question_type]
+                              self.gen_multihop_user_prompt,
+                              self.gen_binary_user_prompt,
+                              self.gen_kshot_user_prompt][question_type]
 
-                qa_task = gen_prompt.format(context=context, tuple_delimiter=TUPLE_DELIMITER,
-                                            sample_questions=k_shot_examples)
+                if question_type == 4:
+                    k_shot_examples = random.sample(self.train_question_list, k=8)
+                    k_shot_examples = "; ".join(k_shot_examples)
+                    qa_task = gen_prompt.format(context=context, tuple_delimiter=TUPLE_DELIMITER,
+                            sample_questions=k_shot_examples)
+                else:
+                    qa_task = gen_prompt.format(context=context, tuple_delimiter=TUPLE_DELIMITER)
+
                 qa_s1_tasks.append(qa_task.strip())
                 context_list.append(context)
                 qa_graph_index.append(index)
                 qa_title_list.append(title)
                 question_type += 1
-                question_type = question_type % 3
+                question_type = question_type % 5
         qa_s1_result = self.task_generator.inference(qa_s1_tasks, self.gen_system_prompt)
         qa_s2_tasks = []
         qa_graph_s2_index = []
-        qa_graph_title_s2_index = []
+        qa_graph_s2_title = []
         for qa_pairs, index, title, context in zip(qa_s1_result, qa_graph_index, qa_title_list, context_list):
             qa_pairs = qa_pairs["response"].strip()
             qa_pairs = qa_pairs.split(TUPLE_DELIMITER)
@@ -236,10 +268,11 @@ class GenReasoningQATask(GenGraphTaskBase):
                 qa_task = self.gen_s2_user_prompt.format(context=context, question=question, answer=answer)
                 qa_s2_tasks.append(qa_task.strip())
                 qa_graph_s2_index.append(index)
-                qa_graph_title_s2_index.append(title)
+                qa_graph_s2_title.append(title)
+                
         qa_s2_result = self.task_generator.inference(qa_s2_tasks, self.gen_system_prompt)
         task_gen_results = [[] for _ in range(len(self.graph_list))]
-        for qa_pair, index, title in zip(qa_s2_result, qa_graph_s2_index, qa_graph_title_s2_index):
+        for qa_pair, index, title in zip(qa_s2_result, qa_graph_s2_index, qa_graph_s2_title):
             qa_pair = qa_pair["response"].strip()
             qa_pair = qa_pair.strip().split("\n")
             if len(qa_pair) != 3:

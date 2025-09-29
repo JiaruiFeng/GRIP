@@ -22,7 +22,7 @@ QA_TASK_DICT = {
     "reasoning_qa": GenReasoningQATask,
 }
 
-LLM_GEN_TASKS = ("context", "context_qa", "summarization", "reasoning_qa")
+LLM_GEN_TASKS = ("context_qa", "summarization", "reasoning_qa")
 
 
 class GripTaskGeneration():

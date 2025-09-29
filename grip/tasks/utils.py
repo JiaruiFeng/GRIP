@@ -121,3 +121,41 @@ def sample_fixed_hop_size_neighbor(
     nodes = nodes.astype(int)
     edges = adj_mat[nodes, :][:, nodes]
     return nodes, edges
+
+
+def compute_node_edge_weight(edge_index: np.ndarray, num_nodes=None) -> tuple[np.ndarray, np.ndarray]:
+    src_nodes = edge_index[:, 0]
+    dst_nodes = edge_index[:, 1]
+    all_nodes = np.concatenate([src_nodes, dst_nodes])
+    if num_nodes is None:
+        num_nodes = all_nodes.max() + 1
+    # Compute node degrees
+    degrees = np.bincount(all_nodes, minlength=num_nodes)
+    degrees[degrees == 0] = 1.0
+    node_weights = 1.0 / degrees
+    # Compute edge weights
+    src_degrees = degrees[src_nodes]
+    dst_degrees = degrees[dst_nodes]
+    edge_weights = 1.0 / np.sqrt(src_degrees * dst_degrees)
+    return node_weights, edge_weights
+
+
+def weighted_sampling(
+    elements: list, 
+    weights: np.ndarray,
+    k: int,
+    replacement: bool=True) -> list:
+
+
+    # Normalize weights to sum to 1
+    weights = np.array(weights) / sum(weights)
+    if replacement:
+        # Sample with replacement
+        samples = np.random.choice(elements, size=k, p=weights).tolist()
+    else:
+        # Sample without replacement
+        if k > len(elements):
+            raise ValueError("k cannot be greater than the number of elements when sampling without replacement.")
+        indices = np.random.choice(len(elements), size=k, p=weights, replace=False)
+        samples = [elements[i] for i in indices]
+    return list(samples)

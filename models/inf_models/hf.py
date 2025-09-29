@@ -90,6 +90,7 @@ class HuggingFaceLLMs(BaseInferenceModel):
                 temperature=self.temperature,
                 top_p=self.top_p,
                 max_tokens=self.gen_max_length,
+                truncate_prompt_tokens=self.tokenize_max_length,
             )
         tensor_parallel_size = torch.cuda.device_count()
         if tensor_parallel_size % 2 != 0 and tensor_parallel_size != 1:

@@ -7,7 +7,7 @@ from torch import Tensor
 from torchmetrics.text import BLEUScore, Perplexity
 
 from constants import SYSTEM_PROMPT
-from models import get_inf_model
+from models import get_inf_model, BaseInferenceModel
 from .utils import *
 
 
@@ -139,22 +139,19 @@ def compute_retrieval_score(
 def compute_llm_score(
         preds: list[str],
         targets: list[list[str]],
-        llm_as_judge_model: str = "qwen-32b",
+        eval_model: BaseInferenceModel,
         **kwargs,
 ) -> float:
     questions = kwargs["questions"]
     assert len(preds) == len(targets) == len(questions)
     if len(preds) == 0:
         return 0.0
-    eval_model = get_inf_model(
-        llm_as_judge_model,
-        tokenize_max_length=5000,
-        gen_max_length=200,
-        **kwargs)
+
     user_prompt = """
     You will be given one question, one predicted answer from an llm candidate model, and the ground truth answers. 
     Be as best as you can to evaluate whether the answer generated from the model match one of the ground truth. If 
-    be included, response yes, otherwise no. A match is not required to be exactly the same, but should be semantically identical.
+    be included, response yes, otherwise no. A match is not required to be exactly the same, 
+    semantically included can be regarded as a match.
     Please DON'T output quotes when outputting your evaluation. 
     Here is some examples:
     --Example 1--
@@ -163,11 +160,18 @@ def compute_llm_score(
     Ground truth: [pizza, pizza slice].
     Evaluation: yes
 
-    --Example 1--
+    --Example 2--
     Question: On which side of the image are the chairs?
     Candidate answer: The chairs are on the left side of the image.
     Ground truth: [right]
     Evaluation: no
+
+
+    --Example 3--
+    Question: Who is wearing the hat?
+    Candidate answer: the guy at coordinate (410, 163)
+    Ground truth: [guy]
+    Evaluation: yes
 
     --Real task--
     Question: {question}
@@ -175,6 +179,7 @@ def compute_llm_score(
     Ground truth: {target}
     Evaluation: 
     """
+    
     user_content = [user_prompt.format(question=q, pred=p, target=t) for q, p, t in zip(questions, preds, targets)]
     results = eval_model.inference(user_contents=user_content, system_prompt=SYSTEM_PROMPT)
     scores = [normalize_answer(r["response"]) == "yes" for r in results]

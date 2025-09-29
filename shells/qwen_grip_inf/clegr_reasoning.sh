@@ -1,21 +1,21 @@
 PYTHONPATH=. python scripts/mp_wrapper.py \
     --script scripts/run_grip.py \
     --num_process 8 \
-    --dataset clegr_facts \
-    --output_file clegr_facts_qwen_context.json \
+    --dataset clegr_reasoning \
+    --output_file clegr_reasoning_qwen_latest.json \
     --num_test 400 \
     --do_eval \
     --metrics em f1 hit llm\
     --llm_as_judge_model qwen-32b \
     --report_to_wandb \
     --wandb_project_name grip \
-    --wandb_run_name clegr_facts_qwen_context \
+    --wandb_run_name clegr_reasoning_qwen_latest \
     --subprocess_args \
     --overwrite False \
     --task_generator_model_name qwen-7b \
-    --num_context_qa 80 \
-    --num_reason_qa 15 \
-    --num_summarization 15 \
+    --num_context_qa 20 \
+    --num_reason_qa 150 \
+    --num_summarization 20 \
     --task_gen_max_length 1000 \
     --tokenize_max_length 4096 \
     --gen_max_length 1000 \

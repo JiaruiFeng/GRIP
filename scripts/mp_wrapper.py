@@ -8,6 +8,7 @@ import torch
 import wandb
 
 from evaluation import auto_eval_batch
+from models import get_inf_model
 from utils import save_list_json, load_list_json
 
 MP_INPUT_DIR = 'outputs/mp/input'
@@ -58,23 +59,45 @@ def do_evaluation(
         metrics: list,
         output_file: str,
         llm_as_judge_model: Optional[str] = None):
+    if "llm" in metrics:
+        eval_model = get_inf_model(
+                    llm_as_judge_model,
+                    tokenize_max_length=5000,
+                    gen_max_length=200)
+    else:
+        eval_model = None
     results = load_list_json(output_file)
     targets = []
     preds = []
+    preds_no_sample = []
     questions = []
     for result in results:
         targets.append(result["target"])
         preds.append(result["response"])
         questions.append(result["question"])
+        if "response_no_sample" in result:
+            preds_no_sample.append(result["response_no_sample"])
     eval_results = auto_eval_batch(
         preds=preds,
         targets=targets,
         metrics=metrics,
         questions=questions,
-        llm_as_judge_model=llm_as_judge_model,
+        eval_model=eval_model,
     )
     for metric in metrics:
         print(f"Metric name: {metric}, metric value: {eval_results[metric]}")
+
+    if preds_no_sample:
+            eval_results = auto_eval_batch(
+                preds=preds,
+                targets=targets,
+                metrics=metrics,
+                questions=questions,
+                eval_model=eval_model,
+            )
+            print("No sampling generation result:")
+            for metric in metrics:
+                print(f"Metric name: {metric}, metric value: {eval_results[metric]}")
     return eval_results
 
 

@@ -158,6 +158,7 @@ def get_lora_model(
             model = model.unload()
         else:
             model = model.base_model
+        
     model = get_peft_model(model, lora_config, adapter_name="lora")
     model.print_trainable_parameters()
 

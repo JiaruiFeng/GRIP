@@ -2,20 +2,20 @@ PYTHONPATH=. python scripts/mp_wrapper.py \
     --script scripts/run_grip.py \
     --num_process 8 \
     --dataset scene_graph \
-    --output_file scene_graph_qwen.json \
+    --output_file scene_graph_qwen_newnew_small.json \
     --num_test 500 \
     --do_eval \
     --metrics em f1 hit llm\
     --llm_as_judge_model qwen-32b \
     --report_to_wandb \
     --wandb_project_name grip \
-    --wandb_run_name scene_graph_qwen \
+    --wandb_run_name scene_graph_qwen_newnew_small \
     --subprocess_args \
     --overwrite False \
     --task_generator_model_name qwen-7b \
     --num_context_qa 10 \
-    --num_reason_qa 90 \
-    --num_summarization 15 \
+    --num_reason_qa 50 \
+    --num_summarization 10 \
     --task_gen_max_length 1000 \
     --tokenize_max_length 4096 \
     --gen_max_length 1000 \
@@ -27,14 +27,15 @@ PYTHONPATH=. python scripts/mp_wrapper.py \
     --gather_batches True \
     --num_train_epochs 50 \
     --involve_qa_epochs 50 \
-    --s1_stop_loss_threshold 0.25 \
+    --s1_stop_loss_threshold 0.4 \
     --s2_stop_loss_threshold 0.4 \
-    --s1_min_epoch 10 \
-    --s2_min_epoch 8 \
+    --s1_min_epoch 5 \
+    --s2_min_epoch 5 \
+    --continue_training False \
     --remove_unused_columns True \
     --report_to none \
     --overwrite_output_dir True \
-    --per_device_train_batch_size 8 \
+    --per_device_train_batch_size 4 \
     --gradient_accumulation_steps 128 \
     --learning_rate 1e-3 \
     --weight_decay 1e-4 \

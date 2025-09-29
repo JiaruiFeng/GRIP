@@ -32,17 +32,21 @@ def do_llm_evaluation(
         data_dict[d["id"]] = d
     targets = []
     preds = []
+    preds_no_sample = []
     questions = []
     for result in results:
         targets.append(result["target"])
         preds.append(result["response"])
         questions.append(result["question"])
+        if "response_no_sample" in result:
+            preds_no_sample.append(result["response_no_sample"])
 
     eval_model = get_inf_model(llm_as_judge_model, **exp_args)
     user_prompt = """
     You will be given one question, one predicted answer from an llm candidate model, and the ground truth answers. 
     Be as best as you can to evaluate whether the answer generated from the model match one of the ground truth. If 
-    be included, response yes, otherwise no. A match is not required to be exactly the same, but should be semantically identical.
+    be included, response yes, otherwise no. A match is not required to be exactly the same, 
+    semantically included can be regarded as a match.
     Please DON'T output quotes when outputting your evaluation. 
     Here is some examples:
     --Example 1--
@@ -51,11 +55,18 @@ def do_llm_evaluation(
     Ground truth: [pizza, pizza slice].
     Evaluation: yes
 
-    --Example 1--
+    --Example 2--
     Question: On which side of the image are the chairs?
     Candidate answer: The chairs are on the left side of the image.
     Ground truth: [right]
     Evaluation: no
+
+
+    --Example 3--
+    Question: Who is wearing the hat?
+    Candidate answer: the guy at coordinate (410, 163)
+    Ground truth: [guy]
+    Evaluation: yes
 
     --Real task--
     Question: {question}
@@ -63,10 +74,17 @@ def do_llm_evaluation(
     Ground truth: {target}
     Evaluation: 
     """
+    if preds_no_sample:
+        user_content = [user_prompt.format(question=q, pred=p, target=t) for q, p, t in zip(questions, preds_no_sample, targets)]
+        eval_results = eval_model.inference(user_contents=user_content, system_prompt=SYSTEM_PROMPT)
+        scores = [normalize_answer(r["response"]) == "yes" for r in eval_results]
+        print(f"llm no sampling accuracy: {sum(scores) / len(scores)}")
+
     user_content = [user_prompt.format(question=q, pred=p, target=t) for q, p, t in zip(questions, preds, targets)]
     eval_results = eval_model.inference(user_contents=user_content, system_prompt=SYSTEM_PROMPT)
     scores = [normalize_answer(r["response"]) == "yes" for r in eval_results]
     print(f"llm accuracy: {sum(scores) / len(scores)}")
+
 
     wrong_result_dict = {}
     for score, result in zip(scores, results):
@@ -84,7 +102,6 @@ def do_llm_evaluation(
                 wrong_result_dict[id]["question"].append(result["question"])
                 wrong_result_dict[id]["target"].append(result["target"])
                 wrong_result_dict[id]["response"].append(result["response"])
-
     wrong_result_list = list(wrong_result_dict.values())
     save_list_json(output_file, wrong_result_list)
 

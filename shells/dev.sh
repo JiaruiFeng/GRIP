@@ -1,21 +1,21 @@
 PYTHONPATH=. python scripts/mp_wrapper.py \
     --script scripts/run_grip.py \
-    --num_process 1 \
+    --num_process 8 \
     --dataset scene_graph \
-    --output_file dev_major_qa_loss.json \
-    --num_test 1 \
+    --output_file debug.json \
+    --num_test 16 \
     --do_eval \
     --metrics em f1 hit llm\
     --llm_as_judge_model qwen-32b \
     --report_to_wandb \
     --wandb_project_name grip \
-    --wandb_run_name dev_major_qa_loss \
+    --wandb_run_name debug \
     --subprocess_args \
     --overwrite True \
     --task_generator_model_name qwen-7b \
-    --num_context_qa 10 \
-    --num_reason_qa 80 \
-    --num_summarization 15 \
+    --num_context_qa 50 \
+    --num_reason_qa 100 \
+    --num_summarization 50 \
     --task_gen_max_length 1000 \
     --tokenize_max_length 4096 \
     --gen_max_length 1000 \
@@ -27,7 +27,7 @@ PYTHONPATH=. python scripts/mp_wrapper.py \
     --gather_batches True \
     --num_train_epochs 50 \
     --involve_qa_epochs 50 \
-    --s1_stop_loss_threshold 0.25 \
+    --s1_stop_loss_threshold 0.2 \
     --s2_stop_loss_threshold 0.4 \
     --s1_min_epoch 5 \
     --s2_min_epoch 5 \
