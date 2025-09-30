@@ -65,7 +65,7 @@ def process_fb15k237(save_dir: str):
     }
     unique_rel = list(unique_rel)
     WAY = 10
-    Q_format = ("What is the relation between word node {src} and word node {tgt}? "
+    Q_format = ("What is the relation between node {src} and node {tgt}? "
                 "Selected from the following candidate answers: {candidates}.")
     for name in ["valid", "test"]:
         file_path = osp.join(save_dir, name + ".txt")
@@ -92,8 +92,8 @@ def process_fb15k237(save_dir: str):
             a = rel
             questions.append([q, [entity2id[triplet[0]], entity2id[triplet[2]]]])
             answers.append(a)
-        # random select 3000
-        selected_index = np.random.choice(len(questions), 3000, replace=False)
+        # random select 10000
+        selected_index = np.random.choice(len(questions), 10000, replace=False)
         questions = [questions[i] for i in selected_index]
         answers = [answers[i] for i in selected_index]
         data_list = [{"title": "fb15k237", "graph": graph, "questions": questions, "answers": answers, "id": "0"}]

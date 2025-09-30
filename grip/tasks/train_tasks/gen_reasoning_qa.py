@@ -176,7 +176,10 @@ class GenReasoningQATask(GenGraphTaskBase):
             for d in refer_data:
                 questions = d["questions"]
                 answers = d["answers"]
+                # Some datasets may contains root node in the questions.
                 for q, a in zip(questions, answers):
+                    if isinstance(q, list):
+                        q = q[0]
                     qa_pair = "Question: {question}\nAnswer: {answer}".format(question=q.strip(), answer=a.strip())
                     train_question_list.append(qa_pair)
         else:

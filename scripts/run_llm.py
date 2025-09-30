@@ -14,7 +14,7 @@ from arguments import (
 from constants import SYSTEM_PROMPT
 from grip.tasks import gen_eval_task
 from models import get_inf_model
-from utils import extract_tag_content, save_entry_to_list_json, load_list_json, set_random_seed
+from utils import extract_tag_content, save_entry_to_list_json, load_list_json, set_random_seed, Timer
 
 
 def extract_all_evidence_and_answers(text, add_evidence=True):
@@ -58,8 +58,12 @@ def run(
             question_list.append(q)
             answer_list.append(a)
             id_list.append(id)
-
+    
+    timer = Timer()
+    timer.start()
     results = model.inference(user_contents=user_contents, system_prompt=SYSTEM_PROMPT)
+    timer.end()
+    print(f"Total inference time:{timer.return_time()}")
 
     for result, Q, A, id in zip(results, question_list, answer_list, id_list):
         response = result["response"]

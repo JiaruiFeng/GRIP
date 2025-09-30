@@ -57,3 +57,8 @@ class InferenceArguments:
         default=False,
         metadata={"help": "Whether to use subgraph as graph context. If False, use full graph instead."}
     )
+
+    index_format: bool = field(
+        default=False,
+        metadata={"help": "If true, use index + edge as graph to text method."}
+    )

@@ -1,36 +1,37 @@
 PYTHONPATH=. python scripts/mp_wrapper.py \
     --script scripts/run_grip.py \
     --num_process 1 \
-    --dataset scene_graph \
-    --output_file debug.json \
-    --num_test 1 \
+    --dataset fb15k237 \
+    --output_file fb15k237_qwen_submit.json \
     --do_eval \
-    --metrics em f1 hit llm\
+    --metrics em f1 hit \
     --llm_as_judge_model qwen-32b \
     --report_to_wandb \
     --wandb_project_name grip \
-    --wandb_run_name debug \
+    --wandb_run_name fb15k237_qwen_submit \
     --subprocess_args \
     --overwrite True \
     --task_generator_model_name qwen-7b \
-    --num_context_qa 0 \
-    --num_reason_qa 0 \
-    --num_summarization 0 \
+    --num_context_qa 6000 \
+    --num_reason_qa 3000 \
+    --num_summarization 6000 \
+    --sample_node_attribute_task False \
     --task_gen_max_length 1000 \
     --tokenize_max_length 4096 \
     --gen_max_length 1000 \
     --model_name qwen-7b \
     --quantization False \
-    --lora_r 16 \
-    --lora_alpha 32 \
+    --lora_r 24 \
+    --lora_alpha 48 \
     --target_modules down_proj up_proj gate_proj \
-    --gather_batches True \
-    --num_train_epochs 50 \
-    --involve_qa_epochs 0 \
-    --s1_stop_loss_threshold 0.4 \
-    --s2_stop_loss_threshold 0.4 \
-    --s1_min_epoch 5 \
-    --s2_min_epoch 5 \
+    --gather_batches False \
+    --num_train_epochs 1 \
+    --involve_qa_epochs 1 \
+    --s1_stop_loss_threshold 0.15 \
+    --s2_stop_loss_threshold 0.15 \
+    --s1_min_epoch 1 \
+    --s2_min_epoch 1 \
+    --continue_training False \
     --remove_unused_columns True \
     --report_to none \
     --overwrite_output_dir True \
@@ -50,6 +51,7 @@ PYTHONPATH=. python scripts/mp_wrapper.py \
     --tf32 False \
     --gradient_checkpointing False \
     --lr_scheduler_type linear \
-    --no_graph_context False \
-    --use_subgraph False 
+    --no_graph_context True \
+    --use_subgraph False \
+    --index_format False
 

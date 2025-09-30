@@ -19,22 +19,17 @@ def gen_eval_task(
     title = input_data["title"]
 
     if eval_mode == "grip":
-        return GRIPEvalDataset(
-            questions=questions,
-            answers=answers,
-            graph=graph,
-            title=title,
-            tokenizer=tokenizer,
-            **kwargs,
-        )
+        dataset_class = GRIPEvalDataset
     elif eval_mode == "standard":
-        return StandardEvalDataset(
-            questions=questions,
-            answers=answers,
-            graph=graph,
-            title=title,
-            tokenizer=tokenizer,
-            **kwargs,
-        )
+        dataset_class = StandardEvalDataset
     else:
         raise ValueError(f"Unsupported eval_mode: {eval_mode}")
+    
+    return dataset_class(
+    questions=questions,
+    answers=answers,
+    graph=graph,
+    title=title,
+    tokenizer=tokenizer,
+    **kwargs,
+)

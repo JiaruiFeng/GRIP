@@ -2,20 +2,20 @@ PYTHONPATH=. python scripts/mp_wrapper.py \
     --script scripts/run_grip.py \
     --num_process 8 \
     --dataset scene_graph \
-    --output_file scene_graph_qwen_latest.json \
+    --output_file scene_graph_qwen_submit.json \
     --num_test 500 \
     --do_eval \
-    --metrics em f1 hit llm\
+    --metrics em f1 hit llm \
     --llm_as_judge_model qwen-32b \
     --report_to_wandb \
     --wandb_project_name grip \
-    --wandb_run_name scene_graph_qwen_latest \
+    --wandb_run_name scene_graph_qwen_submit \
     --subprocess_args \
     --overwrite False \
     --task_generator_model_name qwen-7b \
-    --num_context_qa 20 \
-    --num_reason_qa 80 \
-    --num_summarization 20 \
+    --num_context_qa 50 \
+    --num_reason_qa 100 \
+    --num_summarization 50 \
     --task_gen_max_length 1000 \
     --tokenize_max_length 4096 \
     --gen_max_length 1000 \
@@ -50,5 +50,8 @@ PYTHONPATH=. python scripts/mp_wrapper.py \
     --bf16 True \
     --tf32 False \
     --gradient_checkpointing False \
-    --lr_scheduler_type linear
+    --lr_scheduler_type linear \
+    --no_graph_context True \
+    --use_subgraph False \
+    --index_format False
 

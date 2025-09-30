@@ -3,15 +3,15 @@ PYTHONPATH=. python scripts/mp_wrapper.py \
     --num_process 8 \
     --dataset clegr_reasoning \
     --num_test 400 \
-    --output_file clegr_reasoning_qwen_baseline_new.json \
+    --output_file clegr_reasoning_qwen_baseline_submit.json \
     --do_eval \
     --metrics em f1 hit llm\
     --llm_as_judge_model qwen-32b \
     --report_to_wandb \
     --wandb_project_name grip \
-    --wandb_run_name clegr_reasoning_qwen_baseline_new \
+    --wandb_run_name clegr_reasoning_qwen_baseline_submit \
     --subprocess_args \
-    --overwrite True\
+    --overwrite True \
     --tokenize_max_length 30000 \
     --gen_max_length 1000 \
     --model_name qwen-7b \

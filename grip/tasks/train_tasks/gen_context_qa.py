@@ -66,6 +66,7 @@ class GenContextQATask(GenGraphTaskBase):
             task_generator_model_name: str = "qwen-32b",
             task_gen_max_length: int = 1000,
             num_context_qa: int = 10,
+            sample_node_attribute_task: bool = True,
             **kwargs,
     ):
         super().__init__(
@@ -78,6 +79,7 @@ class GenContextQATask(GenGraphTaskBase):
             **kwargs,
         )
         self.num_qa = num_context_qa
+        self.sample_node_attribute_task = sample_node_attribute_task
 
     def gen_task(self, gen_empty_task=False) -> list:
         if gen_empty_task or self.num_qa <= 0:
@@ -101,9 +103,10 @@ class GenContextQATask(GenGraphTaskBase):
             node_weight, edge_weight = compute_node_edge_weight(edge_index, num_nodes)
 
             for _ in range(self.num_qa):
-                sampled_node = weighted_sampling(list(range(len(node_list))), node_weight, 1)[0]
-                node = node_list[sampled_node]
-                node_attribute_tasks.append(self.node_attribute_user_prompt.format(node=node))
+                if self.sample_node_attribute_task:
+                    sampled_node = weighted_sampling(list(range(len(node_list))), node_weight, 1)[0]
+                    node = node_list[sampled_node]
+                    node_attribute_tasks.append(self.node_attribute_user_prompt.format(node=node))
 
                 sampled_edge = weighted_sampling(list(range(len(edge_list))), edge_weight, 1)[0]
                 edge = edge_list[sampled_edge]
@@ -138,20 +141,21 @@ class GenContextQATask(GenGraphTaskBase):
             sample = self.create_chat_message(question, answer)
             qa_tasks[g_index].append(sample)
 
-        # node attribute
-        node_attribute_results = self.task_generator.inference(node_attribute_tasks, self.gen_system_prompt)
-        for n_text, g_index in zip(node_attribute_results, graph_index):
-            n_text = n_text["response"]
-            n_texts = n_text.strip().split("\n\n")
-            if len(n_texts) != 2:
-                continue
-            question, answer = n_texts
-            question = question.split(":")[-1].strip()
-            answer = answer.split(":")[-1].strip()
-            question = self.template.format(title=self.title_list[g_index], question=question)
-            answer = self.answer_format.format(answer=answer)
-            sample = self.create_chat_message(question, answer)
-            qa_tasks[g_index].append(sample)
+        if self.sample_node_attribute_task:
+            # node attribute
+            node_attribute_results = self.task_generator.inference(node_attribute_tasks, self.gen_system_prompt)
+            for n_text, g_index in zip(node_attribute_results, graph_index):
+                n_text = n_text["response"]
+                n_texts = n_text.strip().split("\n\n")
+                if len(n_texts) != 2:
+                    continue
+                question, answer = n_texts
+                question = question.split(":")[-1].strip()
+                answer = answer.split(":")[-1].strip()
+                question = self.template.format(title=self.title_list[g_index], question=question)
+                answer = self.answer_format.format(answer=answer)
+                sample = self.create_chat_message(question, answer)
+                qa_tasks[g_index].append(sample)
         
         return self.sample_post_process(qa_tasks)
 

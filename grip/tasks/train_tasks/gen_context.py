@@ -9,24 +9,27 @@ from models import BaseInferenceModel
 from .gen_base import GenGraphTaskBase
 
 
-def renormalize_weights(weights, max_clip=100):
+def renormalize_weights(weights, clip=100):
     """
-    Renormalize a list of weights so that the minimum value is 1,
-    convert to integers, and clip to a maximum value.
+    Normalize weights to [0, 1], then scale so min is 1 and max is 'clip'.
     Args:
         weights (list of float or int): The input weights.
-        max_clip (int): The maximum allowed value for the normalized weights.
+        clip (int): The maximum allowed value for the scaled weights.
     Returns:
-        list of int: The renormalized, integer, and clipped weights.
+        list of int: The scaled, integer, and clipped weights.
     """
     min_weight = min(weights)
-    # Normalize so minimum is 1
-    normalized = [w / min_weight for w in weights]
-    # Convert to integer (using round, can use int() for floor)
-    int_normalized = [int(round(w)) for w in normalized]
-    # Clip to max_clip
-    clipped = [min(w, max_clip) for w in int_normalized]
-    return clipped
+    max_weight = max(weights)
+    if max_weight == min_weight:
+        # All weights are the same, set all to clip
+        return [clip for _ in weights]
+    # Normalize to [0, 1]
+    normalized = [(w - min_weight) / (max_weight - min_weight) for w in weights]
+    # Scale to [1, clip]
+    scaled = [n * (clip - 1) + 1 for n in normalized]
+    # Convert to integer and clip
+    int_scaled = [min(max(int(round(s)), 1), clip) for s in scaled]
+    return int_scaled
 
 class GenGraphContextTask(GenGraphTaskBase):
 
@@ -75,8 +78,9 @@ class GenGraphContextTask(GenGraphTaskBase):
             num_node = len(node_list)
             node_weight, edge_weight = compute_node_edge_weight(edge_index, num_node)
 
-            node_up_sampling = renormalize_weights(node_weight, 4)
+            node_up_sampling = renormalize_weights(node_weight, 3)
             edge_up_sampling = renormalize_weights(edge_weight, 3)
+
 
             for node, up_sample_num in zip(node_list, node_up_sampling):
                 node_text = self.node_context_format.format(node=node, title=title)

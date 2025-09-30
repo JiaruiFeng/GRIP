@@ -89,7 +89,7 @@ def do_evaluation(
 
     if preds_no_sample:
             eval_results = auto_eval_batch(
-                preds=preds,
+                preds=preds_no_sample,
                 targets=targets,
                 metrics=metrics,
                 questions=questions,

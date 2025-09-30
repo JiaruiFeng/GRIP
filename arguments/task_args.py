@@ -37,3 +37,8 @@ class TaskArguments:
         default=1000,
         metadata={"help": "The maximum length for task generation."}
     )
+
+    sample_node_attribute_task: bool = field(
+        default=True,
+        metadata={"help": "If true, sample node attribute task in context qa."}
+    )

@@ -186,3 +186,4 @@ outputs/
 wandb/
 slurm_logs/
 *.slurm
+trainer_output/
