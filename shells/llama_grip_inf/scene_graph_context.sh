@@ -1,38 +1,36 @@
 PYTHONPATH=. python scripts/mp_wrapper.py \
     --script scripts/run_grip.py \
-    --num_process 1 \
-    --dataset wn18rr \
-    --output_file wn18rr_llama_submit.json \
+    --num_process 8 \
+    --dataset scene_graph \
+    --output_file scene_graph_llama_context_submit.json \
+    --num_test 500 \
     --do_eval \
-    --metrics em f1 hit \
+    --metrics em f1 hit llm \
     --llm_as_judge_model qwen-32b \
     --report_to_wandb \
     --wandb_project_name grip \
-    --wandb_run_name wn18rr_llama_submit \
+    --wandb_run_name scene_graph_llama_context_submit \
     --subprocess_args \
-    --overwrite True \
+    --overwrite False \
     --task_generator_model_name llama3-8b \
-    --num_context_qa 8000 \
-    --num_reason_qa 2000 \
-    --num_summarization 6000 \
-    --sample_node_attribute_task False \
-    --repharse_context_qa False \
-    --context_upsampling False \
+    --num_context_qa 50 \
+    --num_reason_qa 100 \
+    --num_summarization 50 \
     --task_gen_max_length 1000 \
     --tokenize_max_length 4096 \
     --gen_max_length 1000 \
     --model_name llama3-8b \
     --quantization False \
-    --lora_r 24 \
-    --lora_alpha 48 \
+    --lora_r 16 \
+    --lora_alpha 32 \
     --target_modules down_proj up_proj gate_proj \
-    --gather_batches False \
-    --num_train_epochs 3 \
-    --involve_qa_epochs 10 \
-    --s1_stop_loss_threshold 0.15 \
-    --s2_stop_loss_threshold 0.15 \
-    --s1_min_epoch 1 \
-    --s2_min_epoch 1 \
+    --gather_batches True \
+    --num_train_epochs 50 \
+    --involve_qa_epochs 50 \
+    --s1_stop_loss_threshold 0.4 \
+    --s2_stop_loss_threshold 0.4 \
+    --s1_min_epoch 5 \
+    --s2_min_epoch 5 \
     --continue_training False \
     --remove_unused_columns True \
     --report_to none \
@@ -53,6 +51,7 @@ PYTHONPATH=. python scripts/mp_wrapper.py \
     --tf32 False \
     --gradient_checkpointing False \
     --lr_scheduler_type linear \
-    --no_graph_context True \
+    --no_graph_context False \
     --use_subgraph False \
     --index_format False
+

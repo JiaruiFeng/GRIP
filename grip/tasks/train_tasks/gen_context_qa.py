@@ -131,7 +131,7 @@ class GenContextQATask(GenGraphTaskBase):
                 rephrase_tasks.append(self.rephrase_user_prompt.format(question=question, answer=answer))
                 sample = self.template.format(title=self.title_list[index], question=question)
                 answer = self.answer_format.format(answer=answer)
-                sample = self.create_chat_message(question, answer)
+                sample = self.create_chat_message(sample, answer)
                 original_tasks.append(sample)
                 graph_index.append(index)
 
