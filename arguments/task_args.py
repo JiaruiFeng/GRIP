@@ -42,3 +42,13 @@ class TaskArguments:
         default=True,
         metadata={"help": "If true, sample node attribute task in context qa."}
     )
+
+    repharse_context_qa: bool = field(
+        default=True,
+        metadata={"help": "If true, repharse the context qa task."}
+    )
+
+    context_upsampling: bool = field(
+        default=True,
+        metadata={"help": "If true, do upsampling in context memory task."}
+    )

@@ -42,6 +42,7 @@ def run(
     question_list = []
     answer_list = []
     id_list = []
+    token_counts = []
     # start training
     for i, input_d in enumerate(tqdm(input_data, desc=f"Sample: ")):
         if i < num_resumed:
@@ -52,13 +53,16 @@ def run(
             input_data=input_d,
             **exp_args,
         )
-
         for user_content, q, a in eval_dataset:
+            if exp_args["report_input_token_count"]:
+                tokens = model.tokenizer.encode(user_content)
+                token_counts.append(len(tokens))
             user_contents.append(user_content)
             question_list.append(q)
             answer_list.append(a)
             id_list.append(id)
-    
+    if exp_args["report_input_token_count"]:
+        print(f"averge input token count: {sum(token_counts) / len(token_counts)}")
     timer = Timer()
     timer.start()
     results = model.inference(user_contents=user_contents, system_prompt=SYSTEM_PROMPT)

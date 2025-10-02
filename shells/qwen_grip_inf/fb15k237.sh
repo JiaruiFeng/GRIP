@@ -2,13 +2,13 @@ PYTHONPATH=. python scripts/mp_wrapper.py \
     --script scripts/run_grip.py \
     --num_process 1 \
     --dataset fb15k237 \
-    --output_file fb15k237_qwen_submit.json \
+    --output_file fb15k237_qwen_submit_4.json \
     --do_eval \
     --metrics em f1 hit \
     --llm_as_judge_model qwen-32b \
     --report_to_wandb \
     --wandb_project_name grip \
-    --wandb_run_name fb15k237_qwen_submit \
+    --wandb_run_name fb15k237_qwen_submit_4 \
     --subprocess_args \
     --overwrite True \
     --task_generator_model_name qwen-7b \
@@ -16,6 +16,7 @@ PYTHONPATH=. python scripts/mp_wrapper.py \
     --num_reason_qa 3000 \
     --num_summarization 6000 \
     --sample_node_attribute_task False \
+    --repharse_context_qa False \
     --task_gen_max_length 1000 \
     --tokenize_max_length 4096 \
     --gen_max_length 1000 \

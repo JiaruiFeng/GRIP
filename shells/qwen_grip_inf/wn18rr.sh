@@ -2,13 +2,13 @@ PYTHONPATH=. python scripts/mp_wrapper.py \
     --script scripts/run_grip.py \
     --num_process 1 \
     --dataset wn18rr \
-    --output_file wn18rr_qwen_submit.json \
+    --output_file wn18rr_qwen_1_2_noup.json \
     --do_eval \
     --metrics em f1 hit \
     --llm_as_judge_model qwen-32b \
     --report_to_wandb \
     --wandb_project_name grip \
-    --wandb_run_name wn18rr_qwen_submit \
+    --wandb_run_name wn18rr_qwen_1_2_noup \
     --subprocess_args \
     --overwrite True \
     --task_generator_model_name qwen-7b \
@@ -16,6 +16,8 @@ PYTHONPATH=. python scripts/mp_wrapper.py \
     --num_reason_qa 3000 \
     --num_summarization 6000 \
     --sample_node_attribute_task False \
+    --repharse_context_qa False \
+    --context_upsampling False \
     --task_gen_max_length 1000 \
     --tokenize_max_length 4096 \
     --gen_max_length 1000 \
@@ -26,7 +28,7 @@ PYTHONPATH=. python scripts/mp_wrapper.py \
     --target_modules down_proj up_proj gate_proj \
     --gather_batches False \
     --num_train_epochs 1 \
-    --involve_qa_epochs 1 \
+    --involve_qa_epochs 2 \
     --s1_stop_loss_threshold 0.15 \
     --s2_stop_loss_threshold 0.15 \
     --s1_min_epoch 1 \

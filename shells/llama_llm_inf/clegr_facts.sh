@@ -5,7 +5,7 @@ PYTHONPATH=. python scripts/mp_wrapper.py \
     --num_test 400 \
     --output_file clegr_facts_llama_baseline_context_submit.json \
     --do_eval \
-    --metrics em f1 hit llm\
+    --metrics em f1 hit llm \
     --llm_as_judge_model qwen-32b \
     --report_to_wandb \
     --wandb_project_name grip \

@@ -88,16 +88,16 @@ def do_evaluation(
         print(f"Metric name: {metric}, metric value: {eval_results[metric]}")
 
     if preds_no_sample:
-            eval_results = auto_eval_batch(
-                preds=preds_no_sample,
-                targets=targets,
-                metrics=metrics,
-                questions=questions,
-                eval_model=eval_model,
-            )
-            print("No sampling generation result:")
-            for metric in metrics:
-                print(f"Metric name: {metric}, metric value: {eval_results[metric]}")
+        eval_results = auto_eval_batch(
+            preds=preds_no_sample,
+            targets=targets,
+            metrics=metrics,
+            questions=questions,
+            eval_model=eval_model,
+        )
+        print("No sampling generation result:")
+        for metric in metrics:
+            print(f"Metric name: {metric}, metric value: {eval_results[metric]}")
     return eval_results
 
 

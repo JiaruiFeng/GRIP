@@ -62,3 +62,8 @@ class InferenceArguments:
         default=False,
         metadata={"help": "If true, use index + edge as graph to text method."}
     )
+    report_input_token_count: bool = field(
+        default=False,
+        metadata={"help": "If true, report average input token."}
+
+    )

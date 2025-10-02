@@ -85,16 +85,16 @@ def run(
 
             input_ids = input_ids.to(model.device)
             attention_mask = torch.ones_like(input_ids)
-            output = model.generate(
-                input_ids=input_ids,
-                attention_mask=attention_mask,
-                pad_token_id=tokenizer.pad_token_id,
-                eos_token_id=tokenizer.eos_token_id,
-                max_new_tokens=exp_args["gen_max_length"],
-                do_sample=exp_args["do_sample"],
-                top_p=exp_args["top_p"],
-                temperature=exp_args["temperature"],
-            )
+            # output = model.generate(
+            #     input_ids=input_ids,
+            #     attention_mask=attention_mask,
+            #     pad_token_id=tokenizer.pad_token_id,
+            #     eos_token_id=tokenizer.eos_token_id,
+            #     max_new_tokens=exp_args["gen_max_length"],
+            #     do_sample=exp_args["do_sample"],
+            #     top_p=exp_args["top_p"],
+            #     temperature=exp_args["temperature"],
+            # )
 
             output_no_sample = model.generate(
                 input_ids=input_ids,
@@ -104,6 +104,8 @@ def run(
                 max_new_tokens=exp_args["gen_max_length"],
                 do_sample=False
             )
+             
+            output = output_no_sample
 
 
             response = tokenizer.decode(output[0][input_ids.shape[-1]:], skip_special_tokens=True)
@@ -150,6 +152,8 @@ def main():
             with open(output_file, 'r') as f:
                 num_resumed = len(f.readlines())
     input_data = load_list_json(input_file)
+    if num_resumed >= len(input_data):
+        return
 
     if os.path.exists(ref_file):
         ref_data = load_list_json(ref_file)

@@ -5,13 +5,13 @@ PYTHONPATH=. python scripts/mp_wrapper.py \
     --output_file clegr_reasoning_llama_submit.json \
     --num_test 400 \
     --do_eval \
-    --metrics em f1 hit llm\
+    --metrics em f1 hit llm \
     --llm_as_judge_model qwen-32b \
     --report_to_wandb \
     --wandb_project_name grip \
     --wandb_run_name clegr_reasoning_llama_submit \
     --subprocess_args \
-    --overwrite False \
+    --overwrite True \
     --task_generator_model_name llama3-8b \
     --num_context_qa 20 \
     --num_reason_qa 160 \

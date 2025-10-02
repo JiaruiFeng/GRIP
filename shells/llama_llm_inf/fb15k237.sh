@@ -4,7 +4,7 @@ PYTHONPATH=. python scripts/mp_wrapper.py \
     --dataset fb15k237 \
     --output_file fb15k237_llama_baseline_context_submit.json \
     --do_eval \
-    --metrics em f1 hit\
+    --metrics em f1 hit \
     --llm_as_judge_model qwen-32b \
     --report_to_wandb \
     --wandb_project_name grip \

@@ -48,7 +48,8 @@ class GenContextQATask(GenGraphTaskBase):
     rephrase_user_prompt = """
     You are given one question and answer pair. Rewrite it to preserve the original meaning and all factual/numeric 
     details for both question and answer, but change the wording and structure (e.g., reorder clauses, switch 
-    active↔passive, use synonyms). Do not add or omit information.
+    active↔passive, use synonyms). Do not add or omit information. However, if the question related to select the best category,
+    Do not change any label description or the answer.
     The question and answer are provided below:
     Question: {question}
     Answer: {answer}
@@ -67,6 +68,7 @@ class GenContextQATask(GenGraphTaskBase):
             task_gen_max_length: int = 1000,
             num_context_qa: int = 10,
             sample_node_attribute_task: bool = True,
+            repharse_context_qa: bool = True,
             **kwargs,
     ):
         super().__init__(
@@ -80,11 +82,13 @@ class GenContextQATask(GenGraphTaskBase):
         )
         self.num_qa = num_context_qa
         self.sample_node_attribute_task = sample_node_attribute_task
+        self.repharse_context_qa = repharse_context_qa
 
     def gen_task(self, gen_empty_task=False) -> list:
         if gen_empty_task or self.num_qa <= 0:
             return [[] for _ in range(len(self.graph_list))]
 
+        original_tasks = []
         rephrase_tasks = []
         graph_index = []
         node_attribute_tasks = []
@@ -114,32 +118,42 @@ class GenContextQATask(GenGraphTaskBase):
                 if question_type == "lp":
                     question = "what is the relation between {src} and {tgt}?"
                     question = question.format(src=edge[0], tgt=edge[2])
-                    rephrase_tasks.append(self.rephrase_user_prompt.format(question=question, answer=edge[1]))
+                    answer = edge[1]
                 elif question_type == "src":
                     question = "which entity has the relation {rel} to {tgt}?"
                     question = question.format(rel=edge[1], tgt=edge[2])
-                    rephrase_tasks.append(self.rephrase_user_prompt.format(question=question, answer=edge[0]))
+                    answer = edge[0]
                 else:
                     question = "Which entity has the relation {rel} from {src}?"
                     question = question.format(src=edge[0], rel=edge[1])
-                    rephrase_tasks.append(self.rephrase_user_prompt.format(question=question, answer=edge[2]))
+                    answer = edge[2]
+
+                rephrase_tasks.append(self.rephrase_user_prompt.format(question=question, answer=answer))
+                sample = self.template.format(title=self.title_list[index], question=question)
+                answer = self.answer_format.format(answer=answer)
+                sample = self.create_chat_message(question, answer)
+                original_tasks.append(sample)
                 graph_index.append(index)
 
         qa_tasks = [[] for _ in range(len(self.graph_list))]
+        if self.repharse_context_qa:
         # rephrase
-        rephrase_results = self.task_generator.inference(rephrase_tasks, self.gen_system_prompt)
-        for r_text, g_index in zip(rephrase_results, graph_index):
-            r_text = r_text["response"]
-            r_texts = r_text.strip().split("\n\n")
-            if len(r_texts) != 2:
-                continue
-            question, answer = r_texts
-            question = question.split(":")[-1].strip()
-            answer = answer.split(":")[-1].strip()
-            question = self.template.format(title=self.title_list[g_index], question=question)
-            answer = self.answer_format.format(answer=answer)
-            sample = self.create_chat_message(question, answer)
-            qa_tasks[g_index].append(sample)
+            rephrase_results = self.task_generator.inference(rephrase_tasks, self.gen_system_prompt)
+            for r_text, g_index in zip(rephrase_results, graph_index):
+                r_text = r_text["response"]
+                r_texts = r_text.strip().split("\n\n")
+                if len(r_texts) != 2:
+                    continue
+                question, answer = r_texts
+                question = question.split(":")[-1].strip()
+                answer = answer.split(":")[-1].strip()
+                question = self.template.format(title=self.title_list[g_index], question=question)
+                answer = self.answer_format.format(answer=answer)
+                sample = self.create_chat_message(question, answer)
+                qa_tasks[g_index].append(sample)
+        else:
+            for g_index, sample in zip(graph_index, original_tasks):
+                qa_tasks[g_index].append(sample)
 
         if self.sample_node_attribute_task:
             # node attribute

@@ -5,7 +5,7 @@ PYTHONPATH=. python scripts/mp_wrapper.py \
     --output_file scene_graph_llama_submit.json \
     --num_test 500 \
     --do_eval \
-    --metrics em f1 hit llm\
+    --metrics em f1 hit llm \
     --llm_as_judge_model qwen-32b \
     --report_to_wandb \
     --wandb_project_name grip \

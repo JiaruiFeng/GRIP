@@ -5,7 +5,7 @@ PYTHONPATH=. python scripts/mp_wrapper.py \
     --num_test 500 \
     --output_file scene_graph_qwen_baseline_submit.json \
     --do_eval \
-    --metrics em f1 hit llm\
+    --metrics em f1 hit llm \
     --llm_as_judge_model qwen-32b \
     --report_to_wandb \
     --wandb_project_name grip \
@@ -17,10 +17,13 @@ PYTHONPATH=. python scripts/mp_wrapper.py \
     --model_name qwen-7b \
     --dtype bfloat16 \
     --use_vllm True \
+    --batch_size -1 \
     --do_sample True \
     --top_p 0.9 \
     --temperature 0.6 \
     --no_graph_context False \
     --use_subgraph False \
+    --index_format False \
+    --report_input_token_count True
 
 

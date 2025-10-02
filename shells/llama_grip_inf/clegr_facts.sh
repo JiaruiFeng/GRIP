@@ -2,14 +2,14 @@ PYTHONPATH=. python scripts/mp_wrapper.py \
     --script scripts/run_grip.py \
     --num_process 8 \
     --dataset clegr_facts \
-    --output_file clegr_facts_llama_submit.json \
+    --output_file clegr_facts_llama_submit_.json \
     --num_test 400 \
     --do_eval \
-    --metrics em f1 hit llm\
+    --metrics em f1 hit llm \
     --llm_as_judge_model qwen-32b \
     --report_to_wandb \
     --wandb_project_name grip \
-    --wandb_run_name clegr_facts_llama_submit \
+    --wandb_run_name clegr_facts_llama_submit_ \
     --subprocess_args \
     --overwrite False \
     --task_generator_model_name llama3-8b \
@@ -50,5 +50,7 @@ PYTHONPATH=. python scripts/mp_wrapper.py \
     --bf16 True \
     --tf32 False \
     --gradient_checkpointing False \
-    --lr_scheduler_type linear
-
+    --lr_scheduler_type linear \
+    --no_graph_context True \
+    --use_subgraph False \
+    --index_format False

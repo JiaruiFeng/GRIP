@@ -46,6 +46,7 @@ class GenGraphContextTask(GenGraphTaskBase):
             task_generator: Optional[BaseInferenceModel] = None,
             task_generator_model_name: str = "qwen-32b",
             task_gen_max_length: int = 1000,
+            context_upsampling: bool = True,
             **kwargs,
     ):
         super().__init__(
@@ -57,6 +58,7 @@ class GenGraphContextTask(GenGraphTaskBase):
             task_gen_max_length=task_gen_max_length,
             **kwargs,
         )
+        self.context_upsampling = context_upsampling
 
     def gen_task(self, gen_empty_task=False) -> list:
         if gen_empty_task:
@@ -76,11 +78,15 @@ class GenGraphContextTask(GenGraphTaskBase):
             node_list, edge_list, edge_index = shuffle_graph(node_list, edge_list, edge_index)
 
             num_node = len(node_list)
-            node_weight, edge_weight = compute_node_edge_weight(edge_index, num_node)
+            num_edge = len(edge_list)
 
-            node_up_sampling = renormalize_weights(node_weight, 3)
-            edge_up_sampling = renormalize_weights(edge_weight, 3)
-
+            if self.context_upsampling:
+                node_weight, edge_weight = compute_node_edge_weight(edge_index, num_node)
+                node_up_sampling = renormalize_weights(node_weight, 3)
+                edge_up_sampling = renormalize_weights(edge_weight, 3)
+            else:
+                node_up_sampling = [1 for _ in range(num_node)]
+                edge_up_sampling = [1 for _ in range(num_edge)]
 
             for node, up_sample_num in zip(node_list, node_up_sampling):
                 node_text = self.node_context_format.format(node=node, title=title)

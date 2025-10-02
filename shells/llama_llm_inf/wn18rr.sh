@@ -4,7 +4,7 @@ PYTHONPATH=. python scripts/mp_wrapper.py \
     --dataset wn18rr \
     --output_file wn18rr_llama_baseline_index_submit.json \
     --do_eval \
-    --metrics em f1 hit\
+    --metrics em f1 hit \
     --llm_as_judge_model qwen-32b \
     --report_to_wandb \
     --wandb_project_name grip \
