@@ -17,10 +17,12 @@ PYTHONPATH=. python scripts/mp_wrapper.py \
     --model_name llama3-8b \
     --dtype bfloat16 \
     --use_vllm True \
+    --batch_size -1 \
     --do_sample True \
     --top_p 0.9 \
     --temperature 0.6 \
     --no_graph_context False \
     --use_subgraph False \
-    --index_format False
+    --index_format False \
+    --report_input_token_count True
 
