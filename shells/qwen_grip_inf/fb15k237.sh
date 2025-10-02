@@ -2,32 +2,33 @@ PYTHONPATH=. python scripts/mp_wrapper.py \
     --script scripts/run_grip.py \
     --num_process 1 \
     --dataset fb15k237 \
-    --output_file fb15k237_qwen_submit_4.json \
+    --output_file fb15k237_qwen_1_10_noup_new.json \
     --do_eval \
     --metrics em f1 hit \
     --llm_as_judge_model qwen-32b \
     --report_to_wandb \
     --wandb_project_name grip \
-    --wandb_run_name fb15k237_qwen_submit_4 \
+    --wandb_run_name fb15k237_qwen_1_10_noup_new \
     --subprocess_args \
     --overwrite True \
     --task_generator_model_name qwen-7b \
-    --num_context_qa 6000 \
+    --num_context_qa 8000 \
     --num_reason_qa 3000 \
-    --num_summarization 6000 \
+    --num_summarization 8000 \
     --sample_node_attribute_task False \
     --repharse_context_qa False \
+    --context_upsampling False \
     --task_gen_max_length 1000 \
     --tokenize_max_length 4096 \
     --gen_max_length 1000 \
     --model_name qwen-7b \
     --quantization False \
-    --lora_r 24 \
-    --lora_alpha 48 \
+    --lora_r 32 \
+    --lora_alpha 64 \
     --target_modules down_proj up_proj gate_proj \
     --gather_batches False \
     --num_train_epochs 1 \
-    --involve_qa_epochs 1 \
+    --involve_qa_epochs 10 \
     --s1_stop_loss_threshold 0.15 \
     --s2_stop_loss_threshold 0.15 \
     --s1_min_epoch 1 \
