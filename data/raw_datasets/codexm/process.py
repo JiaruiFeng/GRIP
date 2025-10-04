@@ -4,9 +4,16 @@ from os import path as osp
 import numpy as np
 
 from utils import make_dir, download_hf_file, save_list_json
-
+import shutil
 
 def process_codexm(save_dir: str):
+    make_dir(save_dir)
+    shutil.copy2("data/raw_datasets/codexm/train.txt", osp.join(save_dir, "train.txt"))
+    shutil.copy2("data/raw_datasets/codexm/valid.txt", osp.join(save_dir, "valid.txt"))
+    shutil.copy2("data/raw_datasets/codexm/test.txt", osp.join(save_dir, "test.txt"))
+    shutil.copy2("data/raw_datasets/codexm/entity2text.json", osp.join(save_dir, "entity2text.json"))
+    shutil.copy2("data/raw_datasets/codexm/codexm.json", osp.join(save_dir, "codexm.json"))
+
     entity2text = {}
     with open(osp.join(save_dir, "entity2text.json"), "r") as f:
         data = json.load(f)
