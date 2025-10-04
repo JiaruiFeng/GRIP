@@ -12,7 +12,7 @@ PYTHONPATH=. python scripts/mp_wrapper.py \
     --wandb_run_name clegr_reasoning_llama_submit \
     --subprocess_args \
     --overwrite True \
-    --task_generator_model_name llama3-8b \
+    --task_generator_model_name qwen-7b \
     --num_context_qa 20 \
     --num_reason_qa 160 \
     --num_summarization 20 \

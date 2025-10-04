@@ -187,3 +187,5 @@ wandb/
 slurm_logs/
 *.slurm
 trainer_output/
+count_dataset_statistics.py
+plot_efficiency.py

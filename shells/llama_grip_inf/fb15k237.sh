@@ -2,19 +2,19 @@ PYTHONPATH=. python scripts/mp_wrapper.py \
     --script scripts/run_grip.py \
     --num_process 1 \
     --dataset fb15k237 \
-    --output_file fb15k237_llama_1_10_noup_new_qwen.json \
+    --output_file fb15k237_llama_submit.json \
     --do_eval \
     --metrics em f1 hit \
     --llm_as_judge_model qwen-32b \
     --report_to_wandb \
     --wandb_project_name grip \
-    --wandb_run_name fb15k237_llama_1_10_noup_new_qwen \
+    --wandb_run_name fb15k237_llama_submit \
     --subprocess_args \
     --overwrite True \
     --task_generator_model_name qwen-7b \
-    --num_context_qa 8000 \
-    --num_reason_qa 3000 \
-    --num_summarization 8000 \
+    --num_context_qa 10000 \
+    --num_reason_qa 1000 \
+    --num_summarization 2000 \
     --sample_node_attribute_task False \
     --repharse_context_qa False \
     --context_upsampling False \
@@ -23,12 +23,12 @@ PYTHONPATH=. python scripts/mp_wrapper.py \
     --gen_max_length 1000 \
     --model_name llama3-8b \
     --quantization False \
-    --lora_r 32 \
-    --lora_alpha 64 \
+    --lora_r 24 \
+    --lora_alpha 48 \
     --target_modules down_proj up_proj gate_proj \
     --gather_batches False \
     --num_train_epochs 1 \
-    --involve_qa_epochs 10 \
+    --involve_qa_epochs 1 \
     --s1_stop_loss_threshold 0.15 \
     --s2_stop_loss_threshold 0.15 \
     --s1_min_epoch 1 \

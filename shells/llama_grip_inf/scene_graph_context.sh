@@ -12,7 +12,7 @@ PYTHONPATH=. python scripts/mp_wrapper.py \
     --wandb_run_name scene_graph_llama_context_submit \
     --subprocess_args \
     --overwrite False \
-    --task_generator_model_name llama3-8b \
+    --task_generator_model_name qwen-7b \
     --num_context_qa 50 \
     --num_reason_qa 100 \
     --num_summarization 50 \
