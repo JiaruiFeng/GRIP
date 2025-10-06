@@ -33,9 +33,11 @@ def renormalize_weights(weights, clip=100):
 
 class GenGraphContextTask(GenGraphTaskBase):
 
-    node_context_format = "In context graph {title}, {node}."
+    instruction_template = "Recite the information in the context graph {title} accurately."
 
-    edge_context_format = "In context graph {title}, {src} is {rel} {tgt}."
+    node_context_format = "In context graph {title}, there is a node {node}."
+
+    edge_context_format = "In context graph {title}, the node {src} is {rel} the node {tgt}."
 
 
     def __init__(
@@ -47,6 +49,7 @@ class GenGraphContextTask(GenGraphTaskBase):
             task_generator_model_name: str = "qwen-32b",
             task_gen_max_length: int = 1000,
             context_upsampling: bool = True,
+            format_as_instruction: bool = False,
             **kwargs,
     ):
         super().__init__(
@@ -59,6 +62,7 @@ class GenGraphContextTask(GenGraphTaskBase):
             **kwargs,
         )
         self.context_upsampling = context_upsampling
+        self.format_as_instruction = format_as_instruction
 
     def gen_task(self, gen_empty_task=False) -> list:
         if gen_empty_task:
@@ -91,14 +95,26 @@ class GenGraphContextTask(GenGraphTaskBase):
             for node, up_sample_num in zip(node_list, node_up_sampling):
                 node_text = self.node_context_format.format(node=node, title=title)
                 for _ in range(up_sample_num):
-                    sample_train_context.append(node_text)
+                    if self.format_as_instruction:
+                        answer = node_text
+                        sample = self.instruction_template.format(title=title)
+                        sample = self.create_chat_message(sample, answer)
+                    else:
+                        sample = node_text
+                    sample_train_context.append(sample)
 
             # plain edge information
             for edge, up_sample_num in zip(edge_list, edge_up_sampling):
                 edge_text = self.edge_context_format.format(src=edge[0], tgt=edge[2], rel=edge[1], title=title)
                 for _ in range(up_sample_num):
-                    sample_train_context.append(edge_text)
+                    if self.format_as_instruction:
+                        answer = edge_text
+                        sample = self.instruction_template.format(title=title)
+                        sample = self.create_chat_message(sample, answer)
+                    else:
+                        sample = edge_text
+                    sample_train_context.append(sample)
 
             train_context_result.append(sample_train_context)
 
-        return train_context_result
+        return self.sample_post_process(train_context_result)

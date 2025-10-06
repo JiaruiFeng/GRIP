@@ -159,7 +159,7 @@ def get_lora_model(
         else:
             model = model.base_model
         
-    model = get_peft_model(model, lora_config, adapter_name="lora")
+    model = get_peft_model(model, lora_config, adapter_name="mylora")
     model.print_trainable_parameters()
 
     return model
@@ -186,7 +186,7 @@ def get_prefix_model(
             model = model.unload()
         else:
             model = model.base_model
-    model = get_peft_model(model, prefix_config, adapter_name="prefix")
+    model = get_peft_model(model, prefix_config, adapter_name="myprefix")
     model.print_trainable_parameters()
 
     return model

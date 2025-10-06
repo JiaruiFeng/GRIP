@@ -52,3 +52,8 @@ class TaskArguments:
         default=True,
         metadata={"help": "If true, do upsampling in context memory task."}
     )
+
+    format_as_instruction: bool = field(
+        default=False,
+        metadata={"help": "If true, do upsampling in context memory task."}
+    )

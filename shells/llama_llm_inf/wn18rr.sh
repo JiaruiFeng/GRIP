@@ -2,13 +2,13 @@ PYTHONPATH=. python scripts/mp_wrapper.py \
     --script scripts/run_llm.py \
     --num_process 1 \
     --dataset wn18rr \
-    --output_file wn18rr_llama_baseline_index_submit.json \
+    --output_file wn18rr_llama_baseline_context_submit.json \
     --do_eval \
     --metrics em f1 hit \
     --llm_as_judge_model qwen-32b \
     --report_to_wandb \
     --wandb_project_name grip \
-    --wandb_run_name wn18rr_llama_baseline_index_submit \
+    --wandb_run_name wn18rr_llama_baseline_context_submit \
     --subprocess_args \
     --overwrite True \
     --tokenize_max_length 30000 \
@@ -24,7 +24,7 @@ PYTHONPATH=. python scripts/mp_wrapper.py \
     --temperature 0.6 \
     --no_graph_context True \
     --use_subgraph True \
-    --index_format True \
+    --index_format False \
     --report_input_token_count True
 
 

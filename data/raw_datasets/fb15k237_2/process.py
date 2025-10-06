@@ -19,7 +19,7 @@ def process_fb15k237(save_dir: str):
     if not osp.exists(osp.join(save_dir, "valid.txt")):
         download_hf_file(HF_REPO_ID, subfolder="FB15K237", filename="valid.txt", local_dir=save_dir)
     if not osp.exists(osp.join(save_dir, "fb15k237.json")):
-        download_hf_file(HF_REPO_ID, subfolder="FB15K237", filename="fb15k237.json", local_dir=save_dir)
+        download_hf_file(HF_REPO_ID, subfolder="FB15K237", filename="rel2text.json", local_dir=save_dir)
 
     entity2text = {}
     with open(osp.join(save_dir, "entity2wikidata.json"), "r") as f:

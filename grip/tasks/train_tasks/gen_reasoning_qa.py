@@ -170,7 +170,7 @@ class GenReasoningQATask(GenGraphTaskBase):
             **kwargs,
         )
         self.num_qa = num_reason_qa
-
+        self.add_kshot_qa = True
         train_question_list = []
         if refer_data is not None:
             for d in refer_data:
@@ -183,17 +183,18 @@ class GenReasoningQATask(GenGraphTaskBase):
                     qa_pair = "Question: {question}\nAnswer: {answer}".format(question=q.strip(), answer=a.strip())
                     train_question_list.append(qa_pair)
         else:
-            train_question_list = [
-                "What are the main contributions of Ada Lovelace to the early history of computing?",
-                "Which differences distinguish the philosophies of Confucianism and Daoism?",
-                "How did the invention of the printing press influence literacy rates in Europe?",
-                "How many plays are attributed to William Shakespeare?",
-                "Who were the key allies of the United States during World War II?",
-                "When was the Great Wall of China first constructed, and during which dynasty?",
-                "In what ways did the Industrial Revolution reshape urban life in Britain?",
-                "What is the relationship between photosynthesis, carbon dioxide, and the global climate system?",
-                "Could the Apollo 13 mission have succeeded without the improvised solutions developed by NASA engineers?",
-            ]
+            # train_question_list = [
+            #     "What are the main contributions of Ada Lovelace to the early history of computing?",
+            #     "Which differences distinguish the philosophies of Confucianism and Daoism?",
+            #     "How did the invention of the printing press influence literacy rates in Europe?",
+            #     "How many plays are attributed to William Shakespeare?",
+            #     "Who were the key allies of the United States during World War II?",
+            #     "When was the Great Wall of China first constructed, and during which dynasty?",
+            #     "In what ways did the Industrial Revolution reshape urban life in Britain?",
+            #     "What is the relationship between photosynthesis, carbon dioxide, and the global climate system?",
+            #     "Could the Apollo 13 mission have succeeded without the improvised solutions developed by NASA engineers?",
+            # ]
+            self.add_kshot_qa = False
         self.train_question_list = train_question_list
 
     def gen_task(self, gen_empty_task=False) -> list:
@@ -228,12 +229,14 @@ class GenReasoningQATask(GenGraphTaskBase):
                 for entry in subgraph_edges:
                     context += entry_format.format(src=entry[0], rel=entry[1], tgt=entry[2])
 
+                if not self.add_kshot_qa and question_type == 3:
+                    question_type = 0
 
                 gen_prompt = [# self.gen_local_user_prompt,
-                              self.gen_global_user_prompt,
-                              self.gen_multihop_user_prompt,
-                              self.gen_binary_user_prompt,
-                              self.gen_kshot_user_prompt][question_type]
+                            self.gen_global_user_prompt,
+                            self.gen_multihop_user_prompt,
+                            self.gen_binary_user_prompt,
+                            self.gen_kshot_user_prompt][question_type]
 
                 if question_type == 3:
                     k_shot_examples = random.sample(self.train_question_list, k=8)
@@ -269,6 +272,7 @@ class GenReasoningQATask(GenGraphTaskBase):
                 qa_s2_tasks.append(qa_task.strip())
                 qa_graph_s2_index.append(index)
                 qa_graph_s2_title.append(title)
+                qa_count += 1
                 
         qa_s2_result = self.task_generator.inference(qa_s2_tasks, self.gen_system_prompt)
         task_gen_results = [[] for _ in range(len(self.graph_list))]

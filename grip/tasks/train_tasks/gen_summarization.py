@@ -45,6 +45,8 @@ class GenSummarizationTask(GenGraphTaskBase):
 
     template = """In context graph {title}, {summary}"""
 
+    instruction_template = "Recite the information in the context graph {title} accurately."
+
     def __init__(
             self,
             graph_list: list,
@@ -53,6 +55,7 @@ class GenSummarizationTask(GenGraphTaskBase):
             task_generator_model_name: str = "qwen-32b",
             task_gen_max_length: int = 1000,
             num_summarization: int = 10,
+            format_as_instruction: bool = False,
             **kwargs,
     ):
         super().__init__(
@@ -64,6 +67,8 @@ class GenSummarizationTask(GenGraphTaskBase):
             **kwargs,
         )
         self.num_summarization = num_summarization
+        self.format_as_instruction = format_as_instruction
+
 
     def gen_task(self, gen_empty_task=False) -> list:
         if gen_empty_task or self.num_summarization <= 0:
@@ -117,7 +122,7 @@ class GenSummarizationTask(GenGraphTaskBase):
                     np.arange(len(edge_list)),
                     root_node,
                     num_nodes,
-                    hop=2,
+                    hop=3,
                     max_nodes_per_hop=3,
                 )
 
@@ -157,6 +162,10 @@ class GenSummarizationTask(GenGraphTaskBase):
                     title=title,
                     summary=summary1,
                 )
+                if self.format_as_instruction:
+                    answer = sample
+                    sample = self.instruction_template.format(title=title)
+                    sample = self.create_chat_message(sample, answer)
                 task_gen_results[index].append(sample)
 
             summary2 = summary2["response"]
@@ -166,6 +175,10 @@ class GenSummarizationTask(GenGraphTaskBase):
                     title=title,
                     summary=summary2,
                 )
+                if self.format_as_instruction:
+                    answer = sample
+                    sample = self.instruction_template.format(title=title)
+                    sample = self.create_chat_message(sample, answer)
+                    
                 task_gen_results[index].append(sample)
-
-        return task_gen_results
+        return self.sample_post_process(task_gen_results)

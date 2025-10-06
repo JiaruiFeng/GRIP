@@ -1,20 +1,20 @@
 PYTHONPATH=. python scripts/mp_wrapper.py \
     --script scripts/run_grip.py \
     --num_process 1 \
-    --dataset fb15k237 \
-    --output_file fb15k237_qwen_fix_1_4.json \
+    --dataset fb15k237_2 \
+    --output_file fb15k237_qwen_submit.json \
     --do_eval \
     --metrics em f1 hit \
     --llm_as_judge_model qwen-32b \
     --report_to_wandb \
     --wandb_project_name grip \
-    --wandb_run_name fb15k237_qwen_fix_1_4 \
+    --wandb_run_name fb15k237_qwen_submit \
     --subprocess_args \
     --overwrite True \
     --task_generator_model_name qwen-7b \
-    --num_context_qa 10000 \
-    --num_reason_qa 1000 \
-    --num_summarization 2000 \
+    --num_context_qa 8000 \
+    --num_reason_qa 2000 \
+    --num_summarization 6000 \
     --sample_node_attribute_task False \
     --repharse_context_qa False \
     --context_upsampling False \
@@ -28,12 +28,12 @@ PYTHONPATH=. python scripts/mp_wrapper.py \
     --target_modules down_proj up_proj gate_proj \
     --gather_batches False \
     --num_train_epochs 1 \
-    --involve_qa_epochs 4 \
+    --involve_qa_epochs 5 \
     --s1_stop_loss_threshold 0.15 \
     --s2_stop_loss_threshold 0.15 \
     --s1_min_epoch 1 \
     --s2_min_epoch 1 \
-    --continue_training False \
+    --continue_training True \
     --remove_unused_columns True \
     --report_to none \
     --overwrite_output_dir True \
@@ -55,5 +55,6 @@ PYTHONPATH=. python scripts/mp_wrapper.py \
     --lr_scheduler_type linear \
     --no_graph_context True \
     --use_subgraph False \
-    --index_format False
+    --index_format False \
+    --format_as_instruction False
 

@@ -2,13 +2,13 @@ PYTHONPATH=. python scripts/mp_wrapper.py \
     --script scripts/run_llm.py \
     --num_process 1 \
     --dataset fb15k237 \
-    --output_file fb15k237_qwen_baseline_submit.json \
+    --output_file fb15k237_qwen_baseline_context_submit.json \
     --do_eval \
     --metrics em f1 hit \
     --llm_as_judge_model qwen-32b \
     --report_to_wandb \
     --wandb_project_name grip \
-    --wandb_run_name fb15k237_qwen_baseline_submit \
+    --wandb_run_name fb15k237_qwen_baseline_context_submit \
     --subprocess_args \
     --overwrite True \
     --tokenize_max_length 30000 \
