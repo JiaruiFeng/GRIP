@@ -18,6 +18,12 @@ DATA_DIR = "outputs/data"
 GRIP_INF_OUTPUT_DIR = "outputs/grip_inf"
 LLM_INF_OUTPUT_DIR = "outputs/llm_inf"
 
+def get_local_cache_root(rank: int):
+    base = os.environ.get("SLURM_TMPDIR", "/tmp")
+    job = os.environ.get("SLURM_JOB_ID", "nojob")
+    user = os.environ.get("USER", "nouser")
+    return os.path.join(base, f"grip_cache_{user}_{job}", f"rank_{rank}")
+
 
 def get_visible_gpus():
     """Get list of visible GPU IDs from CUDA_VISIBLE_DEVICES."""
@@ -45,6 +51,12 @@ def run_command(
     env = os.environ.copy()
     env['CUDA_VISIBLE_DEVICES'] = str(visible_gpus[rank])
     env["PYTHONPATH"] = "."
+    cache_root = get_local_cache_root(rank)
+    os.makedirs(cache_root, exist_ok=True)
+
+    env["TRITON_CACHE_DIR"] = os.path.join(cache_root, "triton")
+    env["TORCHINDUCTOR_CACHE_DIR"] = os.path.join(cache_root, "inductor")
+
     command = (['python', args.script]
                + ['--rank', str(rank)]
                + args.subprocess_args \

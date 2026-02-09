@@ -33,7 +33,7 @@ PYTHONPATH=. python scripts/mp_wrapper.py \
     --s2_stop_loss_threshold 0.15 \
     --s1_min_epoch 1 \
     --s2_min_epoch 1 \
-    --continue_training True \
+    --continue_training False \
     --remove_unused_columns True \
     --report_to none \
     --overwrite_output_dir True \
@@ -55,6 +55,5 @@ PYTHONPATH=. python scripts/mp_wrapper.py \
     --lr_scheduler_type linear \
     --no_graph_context True \
     --use_subgraph False \
-    --index_format False \
-    --format_as_instruction False
+    --index_format False
 

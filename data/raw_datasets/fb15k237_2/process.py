@@ -8,7 +8,7 @@ from utils import make_dir, download_hf_file, save_list_json
 HF_REPO_ID = "WFRaain/TAG_datasets"
 
 
-def process_fb15k237(save_dir: str):
+def process_fb15k237_2(save_dir: str):
     # make_dir(save_dir)
     if not osp.exists(osp.join(save_dir, "entity2wikidata.json")):
         download_hf_file(HF_REPO_ID, subfolder="FB15K237", filename="entity2wikidata.json", local_dir=save_dir)
@@ -110,4 +110,4 @@ def process_fb15k237(save_dir: str):
 
 
 if __name__ == "__main__":
-    process_fb15k237("outputs/data/fb15k237_2")
+    process_fb15k237_2("outputs/data/fb15k237_2")

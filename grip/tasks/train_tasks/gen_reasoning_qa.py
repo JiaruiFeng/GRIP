@@ -272,8 +272,7 @@ class GenReasoningQATask(GenGraphTaskBase):
                 qa_s2_tasks.append(qa_task.strip())
                 qa_graph_s2_index.append(index)
                 qa_graph_s2_title.append(title)
-                qa_count += 1
-                
+
         qa_s2_result = self.task_generator.inference(qa_s2_tasks, self.gen_system_prompt)
         task_gen_results = [[] for _ in range(len(self.graph_list))]
         for qa_pair, index, title in zip(qa_s2_result, qa_graph_s2_index, qa_graph_s2_title):

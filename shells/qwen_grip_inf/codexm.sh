@@ -2,13 +2,13 @@ PYTHONPATH=. python scripts/mp_wrapper.py \
     --script scripts/run_grip.py \
     --num_process 1 \
     --dataset codexm \
-    --output_file codexm_qwen_qa_epoch5_rerun.json \
+    --output_file codexm_qwen_submit.json \
     --do_eval \
     --metrics em f1 hit \
     --llm_as_judge_model qwen-32b \
     --report_to_wandb \
     --wandb_project_name grip \
-    --wandb_run_name codexm_qwen_qa_epoch5_rerun \
+    --wandb_run_name codexm_qwen_submit \
     --subprocess_args \
     --overwrite True \
     --task_generator_model_name qwen-7b \
@@ -23,8 +23,8 @@ PYTHONPATH=. python scripts/mp_wrapper.py \
     --gen_max_length 1000 \
     --model_name qwen-7b \
     --quantization False \
-    --lora_r 24 \
-    --lora_alpha 48 \
+    --lora_r 4 \
+    --lora_alpha 8 \
     --target_modules down_proj up_proj gate_proj \
     --gather_batches False \
     --num_train_epochs 1 \

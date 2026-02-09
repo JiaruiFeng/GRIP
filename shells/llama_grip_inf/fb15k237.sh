@@ -1,7 +1,7 @@
 PYTHONPATH=. python scripts/mp_wrapper.py \
     --script scripts/run_grip.py \
     --num_process 1 \
-    --dataset fb15k237 \
+    --dataset fb15k237_2 \
     --output_file fb15k237_llama_submit.json \
     --do_eval \
     --metrics em f1 hit \
@@ -33,7 +33,7 @@ PYTHONPATH=. python scripts/mp_wrapper.py \
     --s2_stop_loss_threshold 0.15 \
     --s1_min_epoch 1 \
     --s2_min_epoch 1 \
-    --continue_training True \
+    --continue_training False \
     --remove_unused_columns True \
     --report_to none \
     --overwrite_output_dir True \

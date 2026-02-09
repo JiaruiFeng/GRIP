@@ -1,7 +1,7 @@
 PYTHONPATH=. python scripts/mp_wrapper.py \
     --script scripts/run_llm.py \
     --num_process 1 \
-    --dataset fb15k237 \
+    --dataset fb15k237_2 \
     --output_file fb15k237_qwen_baseline_context_submit.json \
     --do_eval \
     --metrics em f1 hit \
